@@ -14,7 +14,9 @@
 
 #include <G4ios.hh>
 #include <G4String.hh>
+#ifdef G4MULTITHREADED
 #include <G4Threading.hh>
+#endif
 
 #include <TFile.h>
 
@@ -24,9 +26,13 @@
 std::vector<NpolFileManager *> *NpolFileManager::instances = NULL;
 
 NpolFileManager *NpolFileManager::GetInstance() {
+#ifdef G4MULTITHREADED
 	G4int threadId = G4Threading::G4GetThreadId();
 	if(threadId < 0)  // Either we're on the master thread or running in sequential mode
 		threadId = 0;
+#else
+	G4int threadId = 0;
+#endif
 
 	if(instances == NULL)
 		instances = new std::vector<NpolFileManager *>();

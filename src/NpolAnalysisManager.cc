@@ -11,7 +11,9 @@
 #include <G4StepPoint.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VProcess.hh>
+#ifdef G4MULTITHREADED
 #include <G4Threading.hh>
+#endif
 
 #include "NpolAnalysisManager.hh"
 #include "NpolFileManager.hh"
@@ -25,9 +27,13 @@
 std::vector<NpolAnalysisManager *> *NpolAnalysisManager::instances = NULL;
 
 NpolAnalysisManager *NpolAnalysisManager::GetInstance() {
+#ifdef G4MULTITHREADED
 	G4int threadId = G4Threading::G4GetThreadId();
 	if(threadId < 0) // Either we're on the master thread or running in sequential mode
 		threadId = 0;
+#else
+	G4int threadId = 0;
+#endif
 
 	if(instances == NULL)
 		instances = new std::vector<NpolAnalysisManager *>();
