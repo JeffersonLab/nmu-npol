@@ -11,6 +11,7 @@
 #include <G4StepPoint.hh>
 #include <G4VPhysicalVolume.hh>
 #include <G4VProcess.hh>
+#include <G4Threading.hh>
 
 #include "NpolAnalysisManager.hh"
 #include "NpolFileManager.hh"
@@ -21,17 +22,28 @@
 
 #define OUTFILE_VERSION 20160301 // Determined by YYYYMMDD
 
-NpolAnalysisManager *NpolAnalysisManager::pInstance = NULL;
+std::vector<NpolAnalysisManager *> *NpolAnalysisManager::instances = NULL;
 
 NpolAnalysisManager *NpolAnalysisManager::GetInstance() {
-	if(pInstance == NULL)
-		pInstance = new NpolAnalysisManager();
+	G4int threadId = G4Threading::G4GetThreadId();
+	if(threadId < 0) // Either we're on the master thread or running in sequential mode
+		threadId = 0;
 
-	return pInstance;
+	if(instances == NULL)
+		instances = new std::vector<NpolAnalysisManager *>();
+
+	if(instances->capacity() <= threadId)
+		instances->resize(threadId+1, NULL);
+
+	if((*instances)[threadId] == NULL)
+		(*instances)[threadId] = new NpolAnalysisManager(threadId);
+
+	return (*instances)[threadId];
 }
 
-NpolAnalysisManager::NpolAnalysisManager() {
-	std::cout << "Constructing NpolAnalysisManager singleton" << std::endl;
+NpolAnalysisManager::NpolAnalysisManager(int instanceNum) {
+	std::cout << "Constructing NpolAnalysisManager singleton on thread #"
+	   << (instanceNo = instanceNum) << std::endl;
 	
 	eventFlag = false;
 

@@ -14,23 +14,35 @@
 
 #include <G4ios.hh>
 #include <G4String.hh>
+#include <G4Threading.hh>
 
 #include <TFile.h>
 
 #include "NpolFileManager.hh"
 #include "NpolAnalysisManager.hh"
 
-NpolFileManager *NpolFileManager::pInstance = NULL;
+std::vector<NpolFileManager *> *NpolFileManager::instances = NULL;
 
 NpolFileManager *NpolFileManager::GetInstance() {
-	if(pInstance == NULL)
-		pInstance = new NpolFileManager();
+	G4int threadId = G4Threading::G4GetThreadId();
+	if(threadId < 0)  // Either we're on the master thread or running in sequential mode
+		threadId = 0;
 
-	return pInstance;
+	if(instances == NULL)
+		instances = new std::vector<NpolFileManager *>();
+
+	if(instances->capacity() <= threadId)
+		instances->resize(threadId+1, NULL);
+
+	if((*instances)[threadId] == NULL)
+		(*instances)[threadId] = new NpolFileManager(threadId);
+
+	return (*instances)[threadId];
 }
 
-NpolFileManager::NpolFileManager() {
-	std::cout << "Constructing NpolFileManager singleton" << std::endl;
+NpolFileManager::NpolFileManager(int instanceNum) {
+	std::cout << "Constructing NpolFileManager singleton on thread #"
+	   << (instanceNo = instanceNum) << std::endl;
 
 	const char *eventsPerFileString = getenv("NPOLEVENTSPERFILE");
 	if(eventsPerFileString == NULL)

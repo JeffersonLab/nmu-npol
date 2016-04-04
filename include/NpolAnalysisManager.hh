@@ -39,13 +39,14 @@ class NpolAnalysisManager {
 		void TrackKilled(const G4int trackID);
 
 	private:
-		NpolAnalysisManager();
+		NpolAnalysisManager(int instanceNum);
 		~NpolAnalysisManager();
 
 		void ClearVectors();
 
 	private:
-		static NpolAnalysisManager *pInstance;
+		static std::vector<NpolAnalysisManager *> *instances;
+		int instanceNo;
 
 		TTree *npolTree;
 		TTree *statsTree;

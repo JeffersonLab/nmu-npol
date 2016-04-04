@@ -11,6 +11,8 @@
 #ifndef Npol_File_Manager_h
 #define Npol_File_Manager_h
 
+#include <vector>
+
 class G4String;
 class TFile;
 
@@ -24,14 +26,16 @@ class NpolFileManager {
 		void CloseFile();
 
 	private:
-		NpolFileManager();
+		NpolFileManager(int instanceNum);
 		~NpolFileManager();
 
 		void ConstructFilenamePrefix();
 		void OpenNextFile();
 
 	private:
-		static NpolFileManager *pInstance;
+		static std::vector<NpolFileManager *> *instances;
+		int instanceNo;
+
 		int eventsPerFile;
 		int fileNumber;
 		TFile *outFile;
