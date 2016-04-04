@@ -1,6 +1,7 @@
 
 #include <vector>
 #include <map>
+#include <pthread.h>
 
 #include <TTree.h>
 
@@ -22,7 +23,9 @@
 #include "NpolTagger.hh"
 #include "NpolStatistics.hh"
 
-#define OUTFILE_VERSION 20160301 // Determined by YYYYMMDD
+#define OUTFILE_VERSION 20160404 // Determined by YYYYMMDD
+
+static pthread_rwlock_t analysisMan_lock = PTHREAD_RWLOCK_INITIALIZER;
 
 std::vector<NpolAnalysisManager *> *NpolAnalysisManager::instances = NULL;
 
@@ -35,14 +38,39 @@ NpolAnalysisManager *NpolAnalysisManager::GetInstance() {
 	G4int threadId = 0;
 #endif
 
-	if(instances == NULL)
-		instances = new std::vector<NpolAnalysisManager *>();
+	pthread_rwlock_rdlock(&analysisMan_lock);
+	if(instances == NULL) {
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_wrlock(&analysisMan_lock);
+		if(instances == NULL)
+			instances = new std::vector<NpolAnalysisManager *>();
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_rdlock(&analysisMan_lock);
+	}
+	pthread_rwlock_unlock(&analysisMan_lock);
 
-	if(instances->capacity() <= threadId)
-		instances->resize(threadId+1, NULL);
 
-	if((*instances)[threadId] == NULL)
-		(*instances)[threadId] = new NpolAnalysisManager(threadId);
+	pthread_rwlock_rdlock(&analysisMan_lock);
+	if(instances->capacity() <= threadId) {
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_wrlock(&analysisMan_lock);
+		if(instances->capacity() <= threadId)
+			instances->resize(threadId+1, NULL);
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_rdlock(&analysisMan_lock);
+	}
+	pthread_rwlock_unlock(&analysisMan_lock);
+
+	pthread_rwlock_rdlock(&analysisMan_lock);
+	if((*instances)[threadId] == NULL) {
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_wrlock(&analysisMan_lock);
+		if((*instances)[threadId] == NULL)
+			(*instances)[threadId] = new NpolAnalysisManager(threadId);
+		pthread_rwlock_unlock(&analysisMan_lock);
+		pthread_rwlock_rdlock(&analysisMan_lock);
+	}
+	pthread_rwlock_unlock(&analysisMan_lock);
 
 	return (*instances)[threadId];
 }
@@ -113,7 +141,7 @@ void NpolAnalysisManager::BeginEvent(const G4int evtID) {
 	ClearVectors();
 	
 	NpolFileManager *fileMan = NpolFileManager::GetInstance();
-	if(fileMan->CheckIfChangingFiles(evtID)) {
+	if(fileMan->CheckIfChangingFiles((*statistics)[0]->totalEvents)) {
 		statsTree->Fill();
 		fileMan->ChangeFiles();
 		RecreateTrees();

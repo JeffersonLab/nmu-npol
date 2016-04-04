@@ -21,7 +21,7 @@ class NpolFileManager {
 	public:
 		static NpolFileManager *GetInstance();
 		
-		bool CheckIfChangingFiles(const G4int eventID);
+		bool CheckIfChangingFiles(const G4int events);
 		void ChangeFiles();
 		void CloseFile();
 

@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <pthread.h>
 
 #include <G4ios.hh>
 #include <G4String.hh>
@@ -23,6 +24,8 @@
 #include "NpolFileManager.hh"
 #include "NpolAnalysisManager.hh"
 
+static pthread_rwlock_t fileMan_lock = PTHREAD_RWLOCK_INITIALIZER;
+
 std::vector<NpolFileManager *> *NpolFileManager::instances = NULL;
 
 NpolFileManager *NpolFileManager::GetInstance() {
@@ -34,14 +37,39 @@ NpolFileManager *NpolFileManager::GetInstance() {
 	G4int threadId = 0;
 #endif
 
-	if(instances == NULL)
-		instances = new std::vector<NpolFileManager *>();
+	pthread_rwlock_rdlock(&fileMan_lock);
+	if(instances == NULL) {
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_wrlock(&fileMan_lock);
+		if(instances == NULL)
+			instances = new std::vector<NpolFileManager *>();
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_rdlock(&fileMan_lock);
+	}
+	pthread_rwlock_unlock(&fileMan_lock);
 
-	if(instances->capacity() <= threadId)
-		instances->resize(threadId+1, NULL);
 
-	if((*instances)[threadId] == NULL)
-		(*instances)[threadId] = new NpolFileManager(threadId);
+	pthread_rwlock_rdlock(&fileMan_lock);
+	if(instances->capacity() <= threadId) {
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_wrlock(&fileMan_lock);
+		if(instances->capacity() <= threadId)
+			instances->resize(threadId+1, NULL);
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_rdlock(&fileMan_lock);
+	}
+	pthread_rwlock_unlock(&fileMan_lock);
+
+	pthread_rwlock_rdlock(&fileMan_lock);
+	if((*instances)[threadId] == NULL) {
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_wrlock(&fileMan_lock);
+		if((*instances)[threadId] == NULL)
+			(*instances)[threadId] = new NpolFileManager(threadId);
+		pthread_rwlock_unlock(&fileMan_lock);
+		pthread_rwlock_rdlock(&fileMan_lock);
+	}
+	pthread_rwlock_unlock(&fileMan_lock);
 
 	return (*instances)[threadId];
 }
@@ -99,9 +127,10 @@ void NpolFileManager::CloseFile() {
 	outFile = NULL;
 }
 
-bool NpolFileManager::CheckIfChangingFiles(const G4int eventID) {
+bool NpolFileManager::CheckIfChangingFiles(const G4int events) {
+	G4cout << events << "!" << G4endl;
 	if(eventsPerFile == 0) return false;
-	return !(eventID % eventsPerFile);
+	return !(events % eventsPerFile);
 }
 
 void NpolFileManager::ChangeFiles() {
