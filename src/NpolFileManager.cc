@@ -64,12 +64,14 @@ void NpolFileManager::ConstructFilenamePrefix() {
 	const char *dirName = getenv("NPOLDIR");
 	const char *baseName = getenv("NPOLBASENAME");
 	const char *jobNumber = getenv("JOBNUMBER");
+	char threadNumber[4];
+	sprintf(threadNumber,"%02d",instanceNo);
 
-	filenamePrefix = "";
-	filenamePrefix = filenamePrefix + 
+	filenamePrefix = "" + 
 		(dirName != NULL ? (G4String)dirName + "/root" : "output") + "/"
 		+ (baseName != NULL ? baseName : "npol") + "_"
-		+ (jobNumber != NULL ? jobNumber : "99999") + "_";
+		+ (jobNumber != NULL ? jobNumber : "99999") + "_"
+		+ threadNumber + "_";
 }
 
 // Close the current file, open a new one, and increment the file number.
