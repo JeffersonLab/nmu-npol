@@ -128,7 +128,7 @@ void NpolFileManager::CloseFile() {
 }
 
 bool NpolFileManager::CheckIfChangingFiles(const G4int events) {
-	G4cout << events << "!" << G4endl;
+//	G4cout << events << "!" << G4endl;
 	if(eventsPerFile == 0) return false;
 	return !(events % eventsPerFile);
 }

@@ -1,8 +1,9 @@
 # (1)
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 project (Npolapp)
 set(useROOT true)
+set(CMAKE_CXX_STANDARD 11)
 
 # (2)
 #set(CMAKE_MODULE_PATH /usr/local/geant4/geant4.10.00.p01/share/Geant4-10.0.1/bin)
