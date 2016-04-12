@@ -14,6 +14,7 @@
 #else
 #include "G4RunManager.hh"
 #endif
+#include <cstdlib>
 #include <time.h>
 #include "G4UImanager.hh"
 #include "Randomize.hh"
@@ -65,9 +66,14 @@ int main(int argc,char *argv[]) {
  
   // RunManager construction
 #ifdef G4MULTITHREADED
-  //G4RunManager *runManager = new G4RunManager;
+  const char *numThreads = getenv("NPOLNUMBEROFTHREADS");
+  if(numThreads == NULL)
+	  numThreads = "";
+  int n = atoi(numThreads);
+  n = (n == 0) ? 1 : n;
+
   G4MTRunManager *runManager = new G4MTRunManager;
-  runManager->SetNumberOfThreads(4);
+  runManager->SetNumberOfThreads(n);
 #else
   G4RunManager *runManager = new G4RunManager;
 #endif
