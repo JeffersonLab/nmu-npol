@@ -24,7 +24,7 @@
 #include "NpolFileManager.hh"
 #include "NpolAnalysisManager.hh"
 
-static pthread_rwlock_t fileMan_lock = PTHREAD_RWLOCK_INITIALIZER;
+static pthread_mutex_t fileMan_lock = PTHREAD_MUTEX_INITIALIZER;
 
 std::vector<NpolFileManager *> *NpolFileManager::instances = NULL;
 
@@ -37,39 +37,18 @@ NpolFileManager *NpolFileManager::GetInstance() {
 	G4int threadId = 0;
 #endif
 
-	pthread_rwlock_rdlock(&fileMan_lock);
-	if(instances == NULL) {
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_wrlock(&fileMan_lock);
-		if(instances == NULL)
-			instances = new std::vector<NpolFileManager *>();
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_rdlock(&fileMan_lock);
-	}
-	pthread_rwlock_unlock(&fileMan_lock);
+	pthread_mutex_lock(&fileMan_lock);
 
+	if(instances == NULL) 
+		instances = new std::vector<NpolFileManager *>();
 
-	pthread_rwlock_rdlock(&fileMan_lock);
-	if(instances->capacity() <= threadId) {
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_wrlock(&fileMan_lock);
-		if(instances->capacity() <= threadId)
-			instances->resize(threadId+1, NULL);
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_rdlock(&fileMan_lock);
-	}
-	pthread_rwlock_unlock(&fileMan_lock);
+	if(instances->capacity() <= threadId) 
+		instances->resize(threadId+1, NULL);
 
-	pthread_rwlock_rdlock(&fileMan_lock);
-	if((*instances)[threadId] == NULL) {
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_wrlock(&fileMan_lock);
-		if((*instances)[threadId] == NULL)
-			(*instances)[threadId] = new NpolFileManager(threadId);
-		pthread_rwlock_unlock(&fileMan_lock);
-		pthread_rwlock_rdlock(&fileMan_lock);
-	}
-	pthread_rwlock_unlock(&fileMan_lock);
+	if((*instances)[threadId] == NULL)
+		(*instances)[threadId] = new NpolFileManager(threadId);
+	
+	pthread_mutex_unlock(&fileMan_lock);
 
 	return (*instances)[threadId];
 }
@@ -137,5 +116,9 @@ void NpolFileManager::ChangeFiles() {
 	if(outFile != NULL)
 		outFile->Write();
 	OpenNextFile();
+}
+
+TFile *NpolFileManager::GetCurrentFile() {
+	return outFile;
 }
 

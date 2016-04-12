@@ -18,6 +18,8 @@
 #include "G4UImanager.hh"
 #include "Randomize.hh"
 
+#include "TThread.h"
+
 #include "FTFP_BERT.hh"
 #include "FTFP_BERT_HP.hh"
 #include "QGSP_BERT.hh"
@@ -38,6 +40,8 @@
 
 
 int main(int argc,char *argv[]) {
+
+  TThread::Initialize();
 
   // Choose the Random engine
   //

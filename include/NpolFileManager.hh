@@ -24,6 +24,7 @@ class NpolFileManager {
 		bool CheckIfChangingFiles(const G4int events);
 		void ChangeFiles();
 		void CloseFile();
+		TFile *GetCurrentFile();
 
 	private:
 		NpolFileManager(int instanceNum);
