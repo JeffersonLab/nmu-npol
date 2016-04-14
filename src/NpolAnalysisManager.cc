@@ -55,8 +55,8 @@ NpolAnalysisManager *NpolAnalysisManager::GetInstance() {
 }
 
 NpolAnalysisManager::NpolAnalysisManager(int instanceNum) {
-	std::cout << "Constructing NpolAnalysisManager singleton on thread #"
-	   << (instanceNo = instanceNum) << std::endl;
+	G4cout << "Constructing NpolAnalysisManager singleton on thread #"
+	   << (instanceNo = instanceNum) << G4endl;
 	
 	eventFlag = false;
 

@@ -54,8 +54,8 @@ NpolFileManager *NpolFileManager::GetInstance() {
 }
 
 NpolFileManager::NpolFileManager(int instanceNum) {
-	std::cout << "Constructing NpolFileManager singleton on thread #"
-	   << (instanceNo = instanceNum) << std::endl;
+	G4cout << "Constructing NpolFileManager singleton on thread #"
+	   << (instanceNo = instanceNum) << G4endl;
 
 	const char *eventsPerFileString = getenv("NPOLEVENTSPERFILE");
 	if(eventsPerFileString == NULL)
