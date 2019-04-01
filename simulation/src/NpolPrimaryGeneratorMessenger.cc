@@ -39,14 +39,6 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   channel->SetParameterName("choice", true);
   channel->SetDefaultValue((G4int)3);
   channel->AvailableForStates(G4State_PreInit, G4State_Idle);
-  /*
-  //Select if pi0 Channel will be used
-  piDecay = new G4UIcmdWithABool("/npol/gun/selectPi0",this);
-  piDecay->SetGuidance(" Decide if ROOT file will be created");
-  piDecay->SetGuidance(" Choice: false (default), true ");
-  piDecay->SetParameterName("choice", true);
-  piDecay->SetDefaultValue((G4bool)true);
-  piDecay->AvailableForStates(G4State_PreInit,G4State_Idle);*/
 
   //Maximum Differential Cross Section value
   maxDCS = new G4UIcmdWithADouble("/npol/gun/MaxDCS", this);
@@ -81,6 +73,30 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   openAngle->SetDefaultUnit("deg");
   openAngle->SetDefaultValue((G4double)5);
   openAngle->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  // Set helicity ratio of beam (+/-)
+  helicityRatio = new G4UIcmdWithADouble("/npol/gun/helicityRatio", this);
+  helicityRatio->SetGuidance(" Electron Beam Helicity ratio ");
+  helicityRatio->SetGuidance(" Choice: 1 (default) [0 1] ");
+  helicityRatio->SetParameterName("choice", true);
+  helicityRatio->SetDefaultValue((G4double)1);
+  helicityRatio->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  // Set electric form factor of neutron value (GEn)
+  GEn = new G4UIcmdWithADouble("/npol/gun/GEn", this);
+  GEn->SetGuidance(" Neutron Electric Form Factor (GEn) ");
+  GEn->SetGuidance(" Choice: 0 (default) ");
+  GEn->SetParameterName("choice", true);
+  GEn->SetDefaultValue((G4double)0);
+  GEn->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  // Set magnetic form factor of neutron value (GMn)
+  GMn = new G4UIcmdWithADouble("/npol/gun/GMn", this);
+  GMn->SetGuidance(" Neutron Magnetic Form Factor (GMn) ");
+  GMn->SetGuidance(" Choice: 0 (default) ");
+  GMn->SetParameterName("choice", true);
+  GMn->SetDefaultValue((G4double)0);
+  GMn->AvailableForStates(G4State_PreInit, G4State_Idle);
   
   // Set Inital values (defaults above)  Turns out it has to be done? Eh?
   fnpolAction->SetFilterValue("none");
@@ -89,6 +105,10 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   fnpolAction->SetBeamEnergyValue(4.4);
   fnpolAction->SetBeamPolarizationValue(0.80);
   fnpolAction->SetOpeningAngleValue(5);
+  fnpolAction->SetGenValue(0);
+  fnpolAction->SetGmnValue(0);
+  fnpolAction->SetHelicityRatioValue(1);
+  
 }
 
 NpolPrimaryGeneratorMessenger::~NpolPrimaryGeneratorMessenger(){
@@ -100,6 +120,9 @@ NpolPrimaryGeneratorMessenger::~NpolPrimaryGeneratorMessenger(){
   delete energy;
   delete beamPolarization;
   delete openAngle;
+  delete helicityRatio;
+  delete GEn;
+  delete GMn;
   delete fgunDir;
 }
 
@@ -122,5 +145,8 @@ void NpolPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String n
   if (command == energy) { fnpolAction->SetBeamEnergyValue(energy->GetNewDoubleValue(newVal)); }
   if (command == beamPolarization) { fnpolAction->SetBeamPolarizationValue(beamPolarization->GetNewDoubleValue(newVal)); }
   if (command == openAngle) { fnpolAction->SetOpeningAngleValue(openAngle->GetNewDoubleValue(newVal)); }
+  if (command == helicityRatio) { fnpolAction->SetHelicityRatioValue(helicityRatio->GetNewDoubleValue(newVal)); }
+  if (command == GEn) { fnpolAction->SetGenValue(GEn->GetNewDoubleValue(newVal)); }
+  if (command == GMn) { fnpolAction->SetGmnValue(GMn->GetNewDoubleValue(newVal)); }
   
 }

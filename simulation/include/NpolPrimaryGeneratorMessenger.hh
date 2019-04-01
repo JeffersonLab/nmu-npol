@@ -29,7 +29,7 @@ private:
   G4UIcmdWithoutParameter*     listCmd;
   G4UIcmdWithAString*          hlp;
   G4UIcmdWithAString*          filter;
-  G4UIcmdWithADouble*          maxDCS, *beamPolarization;
+  G4UIcmdWithADouble*          maxDCS, *beamPolarization, *helicityRatio, *GEn, *GMn;
   G4UIcmdWithADoubleAndUnit*   energy, *openAngle;
   G4UIcmdWithAnInteger*        channel;
 

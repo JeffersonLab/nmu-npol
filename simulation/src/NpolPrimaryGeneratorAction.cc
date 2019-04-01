@@ -105,10 +105,6 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //  document for more details in nmu-npol/simulation/npol-doc folder. 
 void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 
-  double helicityRatio=1; // ratio of events with helicity + to with helicity - for the electron beam
-  double gen=0; // electronic form factor of neutron
-  double gmn=0; // magnetic form factor of neutron
-
   bool evtFlag = false;
   double thetaNeutronFree=NpolAng;// polar angle of neutron polarimeter (deg)
   double thetaNeutronFreeRad=thetaNeutronFree/180.*TMath::Pi();
