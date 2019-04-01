@@ -59,15 +59,15 @@ NpolPrimaryGeneratorAction::NpolPrimaryGeneratorAction()
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* pType = particleTable->FindParticle("geantino");
   fParticleGun->SetParticleDefinition(pType);
-  //gunMessenger = new NpolPrimaryGeneratorMessenger(this);
+  gunMessenger = new NpolPrimaryGeneratorMessenger(this);
 }
 
 NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
 {
   std::cout << "Deleting Particle Gun" << std::endl;
-  //delete gunMessenger;
   delete fParticleGun;
   delete fParticleGun2;
+  delete gunMessenger;
 }
 
 // This function is called at the beginning of each event.
@@ -105,18 +105,12 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //  document for more details in nmu-npol/simulation/npol-doc folder. 
 void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 
-  int channel = 3; // channel
-  std::string filter="polarized";  // Choose which filter is used to select events: n - no filter; u - unpolarized differential cross section; p - polarized differential cross section
-  double maxDCS=0.0438455; // maximum of differential cross section (Q^2=3.95)
-  double beamEnergy=4.40*GeV; // beam energy (GeV) (for Q^2=3.95)
   double helicityRatio=1; // ratio of events with helicity + to with helicity - for the electron beam
-  double polBeam=0.8; // polarization of beam
-  double openAngle=5; // opening angle of the detector for scattered electrons (deg)
-  double thetaNeutronFree=NpolAng;// polar angle of neutron polarimeter (deg)
   double gen=0; // electronic form factor of neutron
   double gmn=0; // magnetic form factor of neutron
 
   bool evtFlag = false;
+  double thetaNeutronFree=NpolAng;// polar angle of neutron polarimeter (deg)
   double thetaNeutronFreeRad=thetaNeutronFree/180.*TMath::Pi();
   double pSNeutronFree=2*massNeutron*beamEnergy*(massNeutron+beamEnergy)*cos(thetaNeutronFreeRad)/((2*beamEnergy*massNeutron+massNeutron*massNeutron+beamEnergy*beamEnergy*sin(thetaNeutronFreeRad)*sin(thetaNeutronFreeRad)));
   double pSElectronFree=sqrt(pow(pSNeutronFree*sin(thetaNeutronFreeRad),2)+pow(beamEnergy-pSNeutronFree*cos(thetaNeutronFreeRad),2));
@@ -489,3 +483,5 @@ double NpolPrimaryGeneratorAction::gmnCalc(double q2){
   double gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
   return gmn;
 }
+
+ 

@@ -14,8 +14,9 @@
 #include "NpolPrimaryGeneratorMessenger.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4Types.hh"
+#include "G4SystemOfUnits.hh"
 #include "G4ParticleGun.hh"
-//#include "G4ParticleGunMessenger.hh"
+#include "G4ParticleGunMessenger.hh"
 #include "TLorentzVector.h"
 
 class G4GeneralParticleSource;
@@ -27,15 +28,28 @@ class NpolPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 public:
   NpolPrimaryGeneratorAction();
   virtual ~NpolPrimaryGeneratorAction();
+  G4ParticleGun* GetParticleGun() {return fParticleGun;};
   
   virtual void GeneratePrimaries(G4Event*);
   void GenerateNeutronEvent();
   double genCalc(double q2);
   double gmnCalc(double q2);
-
+  
+  void SetFilterValue(G4String val) {filter = val;};
+  void SetMaxDCSValue(G4double val) {maxDCS = val;;};
+  void SetChannelValue(G4int val) {channel = val;};
+  void SetBeamEnergyValue(G4double val) {beamEnergy = val*GeV;};
+  void SetBeamPolarizationValue(G4double val) {polBeam = val;};
+  void SetOpeningAngleValue(G4double val) {openAngle = val*deg;};
+  
+public:
+  
   static G4double NpolAng;
+  G4double maxDCS, beamEnergy, polBeam, openAngle;
+  G4String filter;
+  G4int channel;
 private:
-  //NpolPrimaryGeneratorMessenger* gunMessenger;
+  NpolPrimaryGeneratorMessenger* gunMessenger;
   G4ParticleGun* fParticleGun;
   G4GeneralParticleSource* fParticleGun2;
   
