@@ -18,7 +18,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   hlp = new G4UIcmdWithAString("/npol/gun/help", this);
   hlp->SetGuidance(" Lists possible actions to be taken");
   hlp->SetGuidance(" Choice: h ");
-  hlp->SetParameterName("choice", true);
+  hlp->SetParameterName("Choice", true);
   hlp->SetDefaultValue("off");
   hlp->SetCandidates("h off");
   hlp->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -27,7 +27,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   filter = new G4UIcmdWithAString("/npol/gun/filter", this);
   filter->SetGuidance(" Choice of DCS filter");
   filter->SetGuidance(" Choice: none (default), unpolarized, polarized ");
-  filter->SetParameterName("choice", true);
+  filter->SetParameterName("filter", true);
   filter->SetDefaultValue("none");
   filter->SetCandidates("none unpolarized polarized");
   filter->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -36,15 +36,15 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   channel = new G4UIcmdWithAnInteger("/npol/gun/channel", this);
   channel->SetGuidance(" Differential Channel to be used");
   channel->SetGuidance(" Choice: 1, 2, 3 (default), 4 ");
-  channel->SetParameterName("choice", true);
+  channel->SetParameterName("channel", true);
   channel->SetDefaultValue((G4int)3);
   channel->AvailableForStates(G4State_PreInit, G4State_Idle);
 
   //Maximum Differential Cross Section value
-  maxDCS = new G4UIcmdWithADouble("/npol/gun/MaxDCS", this);
+  maxDCS = new G4UIcmdWithADouble("/npol/gun/maxDCS", this);
   maxDCS->SetGuidance(" Maximum DCS value");
   maxDCS->SetGuidance(" Choice: 0.5 (default) ");
-  maxDCS->SetParameterName("choice", true);
+  maxDCS->SetParameterName("maxDCS", true);
   maxDCS->SetDefaultValue((G4double)0.5);
   maxDCS->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -52,16 +52,16 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   energy = new G4UIcmdWithADoubleAndUnit("/npol/gun/energy", this);
   energy->SetGuidance(" Electron Beam Energy");
   energy->SetGuidance(" Choice: 4.4 GeV (default) ");
-  energy->SetParameterName("choice", true);
-  energy->SetDefaultValue((G4double)4.4);
+  energy->SetParameterName("beamEnergy", true);
   energy->SetDefaultUnit("GeV");
+  energy->SetDefaultValue((G4double)4.4);
   energy->AvailableForStates(G4State_PreInit, G4State_Idle);
   
   // Polarization of electron beam
   beamPolarization = new G4UIcmdWithADouble("/npol/gun/beamPolarization", this);
   beamPolarization->SetGuidance(" Electron Beam Polarization");
   beamPolarization->SetGuidance(" Choice: 0.8 (default) ");
-  beamPolarization->SetParameterName("choice", true);
+  beamPolarization->SetParameterName("polBeam", true);
   beamPolarization->SetDefaultValue((G4double)0.8);
   beamPolarization->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -69,7 +69,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   openAngle = new G4UIcmdWithADoubleAndUnit("/npol/gun/openAngle", this);
   openAngle->SetGuidance(" Set Electron detetor openning angle");
   openAngle->SetGuidance(" Choice: 5 (default) ");
-  openAngle->SetParameterName("choice", true);
+  openAngle->SetParameterName("openAngle", true);
   openAngle->SetDefaultUnit("deg");
   openAngle->SetDefaultValue((G4double)5);
   openAngle->AvailableForStates(G4State_PreInit, G4State_Idle);
@@ -78,7 +78,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   helicityRatio = new G4UIcmdWithADouble("/npol/gun/helicityRatio", this);
   helicityRatio->SetGuidance(" Electron Beam Helicity ratio ");
   helicityRatio->SetGuidance(" Choice: 1 (default) [0 1] ");
-  helicityRatio->SetParameterName("choice", true);
+  helicityRatio->SetParameterName("helicityRatio", true);
   helicityRatio->SetDefaultValue((G4double)1);
   helicityRatio->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -86,7 +86,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   GEn = new G4UIcmdWithADouble("/npol/gun/GEn", this);
   GEn->SetGuidance(" Neutron Electric Form Factor (GEn) ");
   GEn->SetGuidance(" Choice: 0 (default) ");
-  GEn->SetParameterName("choice", true);
+  GEn->SetParameterName("gen", true);
   GEn->SetDefaultValue((G4double)0);
   GEn->AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -94,7 +94,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   GMn = new G4UIcmdWithADouble("/npol/gun/GMn", this);
   GMn->SetGuidance(" Neutron Magnetic Form Factor (GMn) ");
   GMn->SetGuidance(" Choice: 0 (default) ");
-  GMn->SetParameterName("choice", true);
+  GMn->SetParameterName("gmn", true);
   GMn->SetDefaultValue((G4double)0);
   GMn->AvailableForStates(G4State_PreInit, G4State_Idle);
   
@@ -104,9 +104,9 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   fnpolAction->SetChannelValue(3);
   fnpolAction->SetBeamEnergyValue(4.4);
   fnpolAction->SetBeamPolarizationValue(0.80);
-  fnpolAction->SetOpeningAngleValue(5);
-  fnpolAction->SetGenValue(0);
-  fnpolAction->SetGmnValue(0);
+  fnpolAction->SetOpeningAngleValue(5*deg); // unit needed to get it right later!
+  fnpolAction->SetGenValue(0.0);
+  fnpolAction->SetGmnValue(0.0);
   fnpolAction->SetHelicityRatioValue(1);
   
 }

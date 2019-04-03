@@ -24,22 +24,22 @@
 
 ### Particle Gun Commands ####
 # Particle type
-/gun/particle neutron
+/gun/particle geantino
 
 #
 # Commands below are independent of gps
 #
 
-/npol/gun/MaxDCS 0.045
+/npol/gun/maxDCS 0.045
 /npol/gun/filter polarized
 /npol/gun/channel 3
 /npol/gun/energy 4.4 GeV
 /npol/gun/beamPolarization 0.8
-/npol/gun/openAngle 5 deg
-/npol/gun/helicityRatio 1
-/npol/gun/GEn 0
-/npol/gun/GMn 0		# a value of '0' triggers built in computation of GEn and GMn
+/npol/gun/openAngle 5.0 
+/npol/gun/helicityRatio 1.0
+/npol/gun/GEn 0.0
+/npol/gun/GMn 0.0		# a value of '0' triggers built in computation of GEn and GMn
 
 /vis/scene/endOfEventAction accumulate 2000
 /run/printProgress 100
-/run/beamOn 20
+/run/beamOn 2000

@@ -35,21 +35,21 @@ public:
   double genCalc(double q2);
   double gmnCalc(double q2);
   
-  void SetFilterValue(G4String val) {filter = val;};
-  void SetMaxDCSValue(G4double val) {maxDCS = val;;};
-  void SetChannelValue(G4int val) {channel = val;};
-  void SetBeamEnergyValue(G4double val) {beamEnergy = val*GeV;};
-  void SetBeamPolarizationValue(G4double val) {polBeam = val;};
-  void SetOpeningAngleValue(G4double val) {openAngle = val*deg;};
-  void SetGenValue(G4double val) {gen = val;};
-  void SetGmnValue(G4double val) {gmn = val;};
-  void SetHelicityRatioValue(G4double val) {helicityRatio = val;};
+  void SetFilterValue(G4String val);
+  void SetMaxDCSValue(G4double val);
+  void SetChannelValue(G4int val);
+  void SetBeamEnergyValue(G4double val);
+  void SetBeamPolarizationValue(G4double val);
+  void SetOpeningAngleValue(G4double val);
+  void SetGenValue(G4double val);
+  void SetGmnValue(G4double val);
+  void SetHelicityRatioValue(G4double val);
   
 public:
   
   static G4double NpolAng;
-  G4double maxDCS, beamEnergy, polBeam, openAngle=5*deg, helicityRatio=1;
-  G4double gen =0, gmn =0;
+  G4double maxDCS, beamEnergy, polBeam, openAngle, helicityRatio;
+  G4double gen, gmn;
   G4String filter;
   G4int channel;
 private:
