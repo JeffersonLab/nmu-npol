@@ -27,8 +27,7 @@ private:
   NpolPrimaryGeneratorAction* fnpolAction;
   G4UIdirectory*               fgunDir;
   G4UIcmdWithoutParameter*     listCmd;
-  G4UIcmdWithAString*          hlp;
-  G4UIcmdWithAString*          filter;
+  G4UIcmdWithAString*          hlp, *filter, *genMethod;
   G4UIcmdWithADouble*          maxDCS, *beamPolarization, *helicityRatio, *GEn, *GMn;
   G4UIcmdWithADoubleAndUnit*   energy, *openAngle;
   G4UIcmdWithAnInteger*        channel;

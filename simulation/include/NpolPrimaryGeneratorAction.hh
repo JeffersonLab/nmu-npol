@@ -36,6 +36,7 @@ public:
   double gmnCalc(double q2);
   
   void SetFilterValue(G4String val);
+  void SetGenMethodValue(G4String val);
   void SetMaxDCSValue(G4double val);
   void SetChannelValue(G4int val);
   void SetBeamEnergyValue(G4double val);
@@ -46,12 +47,14 @@ public:
   void SetHelicityRatioValue(G4double val);
   
 public:
-  
   static G4double NpolAng;
+
+private:
   G4double maxDCS, beamEnergy, polBeam, openAngle, helicityRatio;
   G4double gen, gmn;
-  G4String filter;
+  G4String filter, genMethod;
   G4int channel;
+
 private:
   NpolPrimaryGeneratorMessenger* gunMessenger;
   G4ParticleGun* fParticleGun;

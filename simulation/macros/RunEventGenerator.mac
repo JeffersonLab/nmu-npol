@@ -25,6 +25,7 @@
 ### Particle Gun Commands ####
 # Particle type
 /gun/particle geantino
+#/gps/particle geantino
 
 #
 # Commands below are independent of gps
@@ -32,6 +33,7 @@
 
 /npol/gun/maxDCS 0.045
 /npol/gun/filter polarized
+/npol/gun/generator dcs
 /npol/gun/channel 3
 /npol/gun/energy 4.4 GeV
 /npol/gun/beamPolarization 0.8

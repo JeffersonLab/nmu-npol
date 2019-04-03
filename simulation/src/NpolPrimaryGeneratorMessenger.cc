@@ -32,6 +32,18 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   filter->SetCandidates("none unpolarized polarized");
   filter->AvailableForStates(G4State_PreInit, G4State_Idle);
 
+  //choice of generator: GPS or (e,e'n)
+  genMethod = new G4UIcmdWithAString("/npol/gun/generator", this);
+  genMethod->SetGuidance(" Choice of Generator");
+  genMethod->SetGuidance(" 2 generators: G4 GPS or (e,e'n) cross sections");
+  genMethod->SetGuidance(" Choices: gps (default) dcs");
+  genMethod->SetGuidance(" gps --G4 built in general particle source");
+  genMethod->SetGuidance(" dcs --differential cross section method for (e,e'n)");
+  genMethod->SetParameterName("generator", true);
+  genMethod->SetDefaultValue("gps");
+  genMethod->SetCandidates("gps dcs");
+  genMethod->AvailableForStates(G4State_PreInit, G4State_Idle);
+  
   //Differential Cross Section Channel
   channel = new G4UIcmdWithAnInteger("/npol/gun/channel", this);
   channel->SetGuidance(" Differential Channel to be used");
@@ -100,6 +112,7 @@ NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
   
   // Set Inital values (defaults above)  Turns out it has to be done? Eh?
   fnpolAction->SetFilterValue("none");
+  fnpolAction->SetGenMethodValue("gps");
   fnpolAction->SetMaxDCSValue(0.5);
   fnpolAction->SetChannelValue(3);
   fnpolAction->SetBeamEnergyValue(4.4);
@@ -115,6 +128,7 @@ NpolPrimaryGeneratorMessenger::~NpolPrimaryGeneratorMessenger(){
   
   delete hlp;
   delete filter;
+  delete genMethod;
   delete maxDCS;
   delete channel;
   delete energy;
@@ -140,6 +154,7 @@ void NpolPrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String n
     G4cout << "\t/npol/gun/massOfAprime [mean-of-resonance]\t\tMaxDCS --Maximum Value for Differental Cross Section; Default: 0.5\n";
   } 
   if (command == filter){ fnpolAction->SetFilterValue(newVal); }
+  if (command == genMethod){ fnpolAction->SetGenMethodValue(newVal); }
   if (command == maxDCS) { fnpolAction->SetMaxDCSValue(maxDCS->GetNewDoubleValue(newVal)); }
   if (command == channel) { fnpolAction->SetChannelValue(channel->GetNewIntValue(newVal)); }
   if (command == energy) { fnpolAction->SetBeamEnergyValue(energy->GetNewDoubleValue(newVal)); }

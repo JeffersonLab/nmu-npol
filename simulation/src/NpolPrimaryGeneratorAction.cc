@@ -17,10 +17,10 @@
 //         generator created by Tongtong Cao (Hampton U.). This method
 //         needs more work so it can be more versitile but its on the
 //         right track.
+// Modified: 3-April-2019  Added NPOL messenger class and debugged -- W.T.
 
 #include "G4Event.hh"
 #include "G4GeneralParticleSource.hh"
-
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
@@ -28,6 +28,7 @@
 #include "TMath.h"
 #include "TRandom3.h"
 #include <TLorentzVector.h>
+
 #include "JGenPhaseSpace.h"
 #include "JGenFermiMomentum.h"
 
@@ -49,17 +50,24 @@ struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
 G4double NpolPrimaryGeneratorAction::NpolAng = (NpolPolarimeter::NpolAng)*180./TMath::Pi();
 
 NpolPrimaryGeneratorAction::NpolPrimaryGeneratorAction()
-  : G4VUserPrimaryGeneratorAction(), fParticleGun(0)
+  : G4VUserPrimaryGeneratorAction(), fParticleGun(0),fParticleGun2(0)
 {
-  
-  fParticleGun2 = new G4GeneralParticleSource();
+  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  gunMessenger = new NpolPrimaryGeneratorMessenger(this);
+ 
+  // Must create both particle gun options since MACRO doesn't run until after
+  // they are created.  However, at event generation we can call the one needed.
 
+  // Gun 1 is the standard ParticleGun class and uses Tongtong's generator
   G4int n_particle = 1;
   fParticleGun = new G4ParticleGun(n_particle);
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* pType = particleTable->FindParticle("geantino");
   fParticleGun->SetParticleDefinition(pType);
-  gunMessenger = new NpolPrimaryGeneratorMessenger(this);
+  
+  // Gun 2 is the GeneralParticleSource class from G4; can use ion sources
+  // beams, biasing files, etc. 
+  fParticleGun2 = new G4GeneralParticleSource();
+ 
 }
 
 NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
@@ -73,31 +81,40 @@ NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
 // This function is called at the beginning of each event.
 void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  G4double NpolAng = -NpolPolarimeter::NpolAng;
-  GenerateNeutronEvent();
-  TLorentzVector Vector = primeEvent.neutronVector;
-  G4double nMom = primeEvent.neutronVector.P();
-  G4double nTheta = primeEvent.neutronVector.Theta();
-  G4double nPhi = primeEvent.neutronVector.Phi();
-  G4double polX = primeEvent.polTran;
-  G4double polY = 0.;
-  G4double polZ = primeEvent.polLong;
-   
-  G4double xDir = sin(nTheta)*cos(nPhi);
-  G4double yDir = sin(nTheta)*sin(nPhi);
-  G4double zDir = cos(nTheta);
-     
-  G4double xPrimeDir = xDir*cos(NpolAng) + zDir*sin(NpolAng);
-  G4double yPrimeDir = 1*yDir;
-  G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
- 
-  fParticleGun->SetParticleMomentum(nMom);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(xPrimeDir,yPrimeDir,zPrimeDir));
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
-  fParticleGun->SetParticlePolarization(G4ThreeVector(polX,polY,polZ));
-  fParticleGun->SetParticlePolarization(G4ThreeVector(1., 0., 0.));
-  fParticleGun->GeneratePrimaryVertex(anEvent); 
 
+  // in the Macro file, /npol/gun/generator sets if the run uses the
+  // diff. cross section method from Tongtong or the G4 GPS source.
+  if(genMethod == "dcs"){
+	G4double NpolAng = -NpolPolarimeter::NpolAng;
+	GenerateNeutronEvent();
+	TLorentzVector Vector = primeEvent.neutronVector;
+	G4double nMom = primeEvent.neutronVector.P();
+	G4double nTheta = primeEvent.neutronVector.Theta();
+	G4double nPhi = primeEvent.neutronVector.Phi();
+	G4double polX = primeEvent.polTran;
+	G4double polY = 0.;
+	G4double polZ = primeEvent.polLong;
+	
+	G4double xDir = sin(nTheta)*cos(nPhi);
+	G4double yDir = sin(nTheta)*sin(nPhi);
+	G4double zDir = cos(nTheta);
+	
+	G4double xPrimeDir = xDir*cos(NpolAng) + zDir*sin(NpolAng);
+	G4double yPrimeDir = 1*yDir;
+	G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
+	G4ThreeVector momPrime;
+	momPrime.setX(xPrimeDir);momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
+	
+	fParticleGun->SetParticleMomentum(nMom);
+	fParticleGun->SetParticleMomentumDirection(momPrime);
+	fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
+	fParticleGun->SetParticlePolarization(G4ThreeVector(polX,polY,polZ));
+	fParticleGun->SetParticlePolarization(G4ThreeVector(1., 0., 0.));
+	fParticleGun->GeneratePrimaryVertex(anEvent); 
+  } else if (genMethod == "gps"){
+	fParticleGun2->GeneratePrimaryVertex(anEvent);
+  }
+  
 }
 
 //  Generator from Tongtong Cao (post-doc, Hampton U.) for computation of a Neutron Lorentz 4-vector
@@ -480,10 +497,12 @@ double NpolPrimaryGeneratorAction::gmnCalc(double q2){
   return gmn;
 }
 
-// Set actions for Messenger Class messening.
+// Set actions for Messenger Class messenging.
 void NpolPrimaryGeneratorAction::SetMaxDCSValue(G4double val){ maxDCS = val; }
 
 void NpolPrimaryGeneratorAction::SetFilterValue(G4String val) { filter = val; }
+
+void NpolPrimaryGeneratorAction::SetGenMethodValue(G4String val) { genMethod = val; }
 
 void NpolPrimaryGeneratorAction::SetChannelValue(G4int val) { channel = val; }
 
