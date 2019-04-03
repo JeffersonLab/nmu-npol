@@ -27,9 +27,22 @@
 /gun/particle neutron
 
 #
-# Commands below are independent of gps
+# Commands below are for the NPOL messenger
 #
+/npol/gun/maxDCS 0.045
+/npol/gun/filter polarized
+/npol/gun/generator dcs
+/npol/gun/channel 3
+/npol/gun/energy 4.4 GeV
+/npol/gun/beamPolarization 0.8
+/npol/gun/openAngle 5.0 
+/npol/gun/helicityRatio 1.0
+/npol/gun/GEn 0.0			# a value of '0' triggers built in computation of GEn and GMn
+/npol/gun/GMn 0.0		
 
+#
+# Run commands
+#
 /vis/scene/endOfEventAction accumulate 2000
 /run/printProgress 100
-/run/beamOn 200
+/run/beamOn 2000

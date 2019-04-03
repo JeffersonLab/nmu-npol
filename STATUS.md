@@ -1,3 +1,9 @@
+#Update: 3-April-2019
+
+Added in Tongtong's (Hampton U.) differental cross section (DCS) generator for (e,e'n) scatteering to the primary event generator.  Also added a PrimaryEventMessenger class so commands can be passed from the G4 macro file to the PrimaryEvent generator.  See NpolPrimaryEventGeneratorMessenger.cc/hh for more details.
+
+The code can now run both a GeneralParticleSource as before and this DCS generator with the invokation of "/npol/gun/generator dcs" (diff. cross section source) or "/npol/gun/generator gps" (GPS source).  This allows the study of just neutrons on the polarimeter or beam on target.  Geometry has to be adjusted for all cases. 
+
 #Update: 15-March-2019
 
 Updated the NpolPolarimeter.cc and got rid of the NpolBox volume.  All assembly volumes are now properly placed without having to use a secondary "mother volume".  This will clean up a bit of the code and running time.

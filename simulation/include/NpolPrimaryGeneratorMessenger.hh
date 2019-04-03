@@ -5,6 +5,7 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithADouble.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithoutParameter.hh"
 #include "G4UImessenger.hh"
@@ -21,16 +22,15 @@ public:
   virtual ~NpolPrimaryGeneratorMessenger();
 
   void SetNewValue(G4UIcommand*, G4String);
-  //void SetFilterValue(G4String val) {filter = val;};
   
 private:
   NpolPrimaryGeneratorAction* fnpolAction;
   G4UIdirectory*               fgunDir;
   G4UIcmdWithoutParameter*     listCmd;
-  G4UIcmdWithAString*          hlp;
-  G4UIcmdWithAString*          filter;
-  //G4UIcmdWithAnInteger*        numChan;
-  //G4UIcmdWithADouble*          massA;
-  //G4UIcmdWithABool*            piDecay;
+  G4UIcmdWithAString*          hlp, *filter, *genMethod;
+  G4UIcmdWithADouble*          maxDCS, *beamPolarization, *helicityRatio, *GEn, *GMn;
+  G4UIcmdWithADoubleAndUnit*   energy, *openAngle;
+  G4UIcmdWithAnInteger*        channel;
+
 };
 #endif

@@ -17,10 +17,10 @@
 //         generator created by Tongtong Cao (Hampton U.). This method
 //         needs more work so it can be more versitile but its on the
 //         right track.
+// Modified: 3-April-2019  Added NPOL messenger class and debugged -- W.T.
 
 #include "G4Event.hh"
 #include "G4GeneralParticleSource.hh"
-
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
@@ -28,6 +28,7 @@
 #include "TMath.h"
 #include "TRandom3.h"
 #include <TLorentzVector.h>
+
 #include "JGenPhaseSpace.h"
 #include "JGenFermiMomentum.h"
 
@@ -49,55 +50,71 @@ struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
 G4double NpolPrimaryGeneratorAction::NpolAng = (NpolPolarimeter::NpolAng)*180./TMath::Pi();
 
 NpolPrimaryGeneratorAction::NpolPrimaryGeneratorAction()
-  : G4VUserPrimaryGeneratorAction(), fParticleGun(0)
+  : G4VUserPrimaryGeneratorAction(), fParticleGun(0),fParticleGun2(0)
 {
-  
-  fParticleGun2 = new G4GeneralParticleSource();
+  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  gunMessenger = new NpolPrimaryGeneratorMessenger(this);
+ 
+  // Must create both particle gun options since MACRO doesn't run until after
+  // they are created.  However, at event generation we can call the one needed.
 
+  // Gun 1 is the standard ParticleGun class and uses Tongtong's generator
   G4int n_particle = 1;
   fParticleGun = new G4ParticleGun(n_particle);
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* pType = particleTable->FindParticle("geantino");
   fParticleGun->SetParticleDefinition(pType);
-  //gunMessenger = new NpolPrimaryGeneratorMessenger(this);
+  
+  // Gun 2 is the GeneralParticleSource class from G4; can use ion sources
+  // beams, biasing files, etc. 
+  fParticleGun2 = new G4GeneralParticleSource();
+ 
 }
 
 NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
 {
   std::cout << "Deleting Particle Gun" << std::endl;
-  //delete gunMessenger;
   delete fParticleGun;
   delete fParticleGun2;
+  delete gunMessenger;
 }
 
 // This function is called at the beginning of each event.
 void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  G4double NpolAng = -NpolPolarimeter::NpolAng;
-  GenerateNeutronEvent();
-  TLorentzVector Vector = primeEvent.neutronVector;
-  G4double nMom = primeEvent.neutronVector.P();
-  G4double nTheta = primeEvent.neutronVector.Theta();
-  G4double nPhi = primeEvent.neutronVector.Phi();
-  G4double polX = primeEvent.polTran;
-  G4double polY = 0.;
-  G4double polZ = primeEvent.polLong;
-   
-  G4double xDir = sin(nTheta)*cos(nPhi);
-  G4double yDir = sin(nTheta)*sin(nPhi);
-  G4double zDir = cos(nTheta);
-     
-  G4double xPrimeDir = xDir*cos(NpolAng) + zDir*sin(NpolAng);
-  G4double yPrimeDir = 1*yDir;
-  G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
- 
-  fParticleGun->SetParticleMomentum(nMom);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(xPrimeDir,yPrimeDir,zPrimeDir));
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
-  fParticleGun->SetParticlePolarization(G4ThreeVector(polX,polY,polZ));
-  fParticleGun->SetParticlePolarization(G4ThreeVector(1., 0., 0.));
-  fParticleGun->GeneratePrimaryVertex(anEvent); 
 
+  // in the Macro file, /npol/gun/generator sets if the run uses the
+  // diff. cross section method from Tongtong or the G4 GPS source.
+  if(genMethod == "dcs"){
+	G4double NpolAng = -NpolPolarimeter::NpolAng;
+	GenerateNeutronEvent();
+	TLorentzVector Vector = primeEvent.neutronVector;
+	G4double nMom = primeEvent.neutronVector.P();
+	G4double nTheta = primeEvent.neutronVector.Theta();
+	G4double nPhi = primeEvent.neutronVector.Phi();
+	G4double polX = primeEvent.polTran;
+	G4double polY = 0.;
+	G4double polZ = primeEvent.polLong;
+	
+	G4double xDir = sin(nTheta)*cos(nPhi);
+	G4double yDir = sin(nTheta)*sin(nPhi);
+	G4double zDir = cos(nTheta);
+	
+	G4double xPrimeDir = xDir*cos(NpolAng) + zDir*sin(NpolAng);
+	G4double yPrimeDir = 1*yDir;
+	G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
+	G4ThreeVector momPrime;
+	momPrime.setX(xPrimeDir);momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
+	
+	fParticleGun->SetParticleMomentum(nMom);
+	fParticleGun->SetParticleMomentumDirection(momPrime);
+	fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
+	fParticleGun->SetParticlePolarization(G4ThreeVector(polX,polY,polZ));
+	fParticleGun->SetParticlePolarization(G4ThreeVector(1., 0., 0.));
+	fParticleGun->GeneratePrimaryVertex(anEvent); 
+  } else if (genMethod == "gps"){
+	fParticleGun2->GeneratePrimaryVertex(anEvent);
+  }
+  
 }
 
 //  Generator from Tongtong Cao (post-doc, Hampton U.) for computation of a Neutron Lorentz 4-vector
@@ -105,18 +122,8 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 //  document for more details in nmu-npol/simulation/npol-doc folder. 
 void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 
-  int channel = 3; // channel
-  std::string filter="polarized";  // Choose which filter is used to select events: n - no filter; u - unpolarized differential cross section; p - polarized differential cross section
-  double maxDCS=0.0438455; // maximum of differential cross section (Q^2=3.95)
-  double beamEnergy=4.40*GeV; // beam energy (GeV) (for Q^2=3.95)
-  double helicityRatio=1; // ratio of events with helicity + to with helicity - for the electron beam
-  double polBeam=0.8; // polarization of beam
-  double openAngle=5; // opening angle of the detector for scattered electrons (deg)
-  double thetaNeutronFree=NpolAng;// polar angle of neutron polarimeter (deg)
-  double gen=0; // electronic form factor of neutron
-  double gmn=0; // magnetic form factor of neutron
-
   bool evtFlag = false;
+  double thetaNeutronFree=NpolAng;// polar angle of neutron polarimeter (deg)
   double thetaNeutronFreeRad=thetaNeutronFree/180.*TMath::Pi();
   double pSNeutronFree=2*massNeutron*beamEnergy*(massNeutron+beamEnergy)*cos(thetaNeutronFreeRad)/((2*beamEnergy*massNeutron+massNeutron*massNeutron+beamEnergy*beamEnergy*sin(thetaNeutronFreeRad)*sin(thetaNeutronFreeRad)));
   double pSElectronFree=sqrt(pow(pSNeutronFree*sin(thetaNeutronFreeRad),2)+pow(beamEnergy-pSNeutronFree*cos(thetaNeutronFreeRad),2));
@@ -206,7 +213,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		// Do not filter events by DCS
 		if(filter=="none"){
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			evtFlag = true;
 			event++;
 		  }	event++;
@@ -215,7 +222,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		// Filter events by polarized DCS
 		if(filter=="unpolarized"){
 		  ran3 = maxDCS*randomNum.Rndm(); 
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
 			unpolDCS=mottDCS*energySElectron/beamEnergy/((1+tau)*epsilon)*(tau*pow(gmn,2)+epsilon*pow(gen,2))/dcsConversion;
 			if(unpolDCS>ran3){
@@ -227,7 +234,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		if(filter=="polarized"){
 		  ran3 = maxDCS*randomNum.Rndm(); 
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
 			unpolDCS=mottDCS*energySElectron/beamEnergy/((1+tau)*epsilon)*(tau*pow(gmn,2)+epsilon*pow(gen,2))/dcsConversion;
 			if(gRandom->Rndm()<percentPosHeli) helicity=1;
@@ -290,7 +297,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		// Do not filter events by DCS
 		if(filter=="none"){
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			evtFlag = true;
 			event++;
 		  }	event++;
@@ -299,7 +306,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		// Filter events by polarized DCS
 		if(filter=="unpolarized"){
 		  ran3 = maxDCS*randomNum.Rndm(); 
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
 			unpolDCS=mottDCS*energySElectron/beamEnergy/((1+tau)*epsilon)*(tau*pow(gmn,2)+epsilon*pow(gen,2))/dcsConversion;
 			
@@ -312,7 +319,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		if(filter=="polarized"){
 		  ran3 = maxDCS*randomNum.Rndm(); 
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
 			unpolDCS=mottDCS*energySElectron/beamEnergy/((1+tau)*epsilon)*(tau*pow(gmn,2)+epsilon*pow(gen,2))/dcsConversion;
 			if(gRandom->Rndm()<percentPosHeli) helicity=1;
@@ -377,7 +384,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		// Do not filter events by DCS
 		if(filter=="none"){
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){	
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){	
 			evtFlag = true;
 			event++;
 		  }	event++;
@@ -386,7 +393,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		// Filter events by polarized DCS
 		if(filter=="unpolarized"){
 		  ran3 = maxDCS*randomNum.Rndm(); 
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			double k1=q2*pow(gmn,2);
 			double k2=pow(2*massNeutron,2)*(pow(gen,2)+tau*pow(gmn,2))/(1+tau);
 			double term1=beam.E()*pP1->E()-beam.Px()*pP1->Px()-beam.Py()*pP1->Py()-beam.Pz()*pP1->Pz()-2*pow(massElectron,2);
@@ -402,7 +409,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		if(filter=="polarized"){
 		  ran3 = maxDCS*randomNum.Rndm();
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			double k1=q2*pow(gmn,2);
 			double k2=pow(2*massNeutron,2)*(pow(gen,2)+tau*pow(gmn,2))/(1+tau);
 			double term1=beam.E()*pP1->E()-beam.Px()*pP1->Px()-beam.Py()*pP1->Py()-beam.Pz()*pP1->Pz()-2*pow(massElectron,2);
@@ -457,7 +464,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		
 		// Do not filter events by DCS
 		if(filter=="none"){
-		  if(thetaSElectron>thetaSElectronFree-openAngle/2 && thetaSElectron <thetaSElectronFree+openAngle/2){	
+		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){	
 			evtFlag = true;
 			event++;
 		  }	event++;
@@ -489,3 +496,24 @@ double NpolPrimaryGeneratorAction::gmnCalc(double q2){
   double gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
   return gmn;
 }
+
+// Set actions for Messenger Class messenging.
+void NpolPrimaryGeneratorAction::SetMaxDCSValue(G4double val){ maxDCS = val; }
+
+void NpolPrimaryGeneratorAction::SetFilterValue(G4String val) { filter = val; }
+
+void NpolPrimaryGeneratorAction::SetGenMethodValue(G4String val) { genMethod = val; }
+
+void NpolPrimaryGeneratorAction::SetChannelValue(G4int val) { channel = val; }
+
+void NpolPrimaryGeneratorAction::SetBeamEnergyValue(G4double val) { beamEnergy = val; }
+
+void NpolPrimaryGeneratorAction::SetBeamPolarizationValue(G4double val) { polBeam = val; }
+
+void NpolPrimaryGeneratorAction::SetOpeningAngleValue(G4double val) { openAngle = val; }
+
+void NpolPrimaryGeneratorAction::SetGenValue(G4double val) { gen = val; }
+
+void NpolPrimaryGeneratorAction::SetGmnValue(G4double val) { gmn = val; }
+
+void NpolPrimaryGeneratorAction::SetHelicityRatioValue(G4double val) { helicityRatio = val; }
