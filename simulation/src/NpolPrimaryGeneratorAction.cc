@@ -94,7 +94,7 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	G4double polX = primeEvent.polTran;
 	G4double polY = 0.;
 	G4double polZ = primeEvent.polLong;
-	
+
 	G4double xDir = sin(nTheta)*cos(nPhi);
 	G4double yDir = sin(nTheta)*sin(nPhi);
 	G4double zDir = cos(nTheta);
@@ -109,7 +109,6 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	fParticleGun->SetParticleMomentumDirection(momPrime);
 	fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
 	fParticleGun->SetParticlePolarization(G4ThreeVector(polX,polY,polZ));
-	fParticleGun->SetParticlePolarization(G4ThreeVector(1., 0., 0.));
 	fParticleGun->GeneratePrimaryVertex(anEvent); 
   } else if (genMethod == "gps"){
 	fParticleGun2->GeneratePrimaryVertex(anEvent);
@@ -487,13 +486,13 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 double NpolPrimaryGeneratorAction::genCalc(double q2){
   double tau=q2/4/massNeutron/massNeutron;
   double gD=pow(1+q2/0.71,-2);
-  double gen=-0.886*(-1.913)*tau*gD/(1+3.29*tau);
+  gen=-0.886*(-1.913)*tau*gD/(1+3.29*tau);
   return gen;
 }
 
 double NpolPrimaryGeneratorAction::gmnCalc(double q2){
   double b[5]={3.26,-0.272, 0.0123, -2.52, 2.55};
-  double gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
+  gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
   return gmn;
 }
 
