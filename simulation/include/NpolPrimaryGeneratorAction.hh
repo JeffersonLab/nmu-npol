@@ -17,7 +17,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleGunMessenger.hh"
-#include "TLorentzVector.h"
+#include <TLorentzVector.h>
+#include "TMatrix.h"
 
 class G4GeneralParticleSource;
 class G4ParticleGun;

@@ -25,7 +25,7 @@
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "globals.hh"
-#include "TMath.h"
+#include "TMath.h" 
 #include "TRandom3.h"
 
 #include "JGenPhaseSpace.h"
@@ -98,7 +98,7 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	G4double yPrimeDir = 1*yDir;
 	G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
 	G4ThreeVector momPrime;
-	momPrime.setX(xPrimeDir);momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
+	momPrime.setX(xPrimeDir); momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
 	
 	fParticleGun->SetParticleMomentum(nMom);
 	fParticleGun->SetParticleMomentumDirection(momPrime);
@@ -456,11 +456,11 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   TLorentzVector *copyVector1 = new TLorentzVector(*pP1);
   TLorentzVector *copyVector2 = new TLorentzVector(*pP2);
   TLorentzVector *copyVector3 = new TLorentzVector(*pP3);
-  primeEvent.electronVector = copyVector1; //*pP1;
-  primeEvent.neutronVector = copyVector2; //*pP2;
-  primeEvent.thirdParticleVector = copyVector3; //*pP3;
+  primeEvent.electronVector = copyVector1; 
+  primeEvent.neutronVector = copyVector2; 
+  primeEvent.thirdParticleVector = copyVector3; 
   primeEvent.polLong = polLongi;
-  primeEvent.polTran = polTrans;
+  primeEvent.polTran = polTrans; 
   
   return;
 }
