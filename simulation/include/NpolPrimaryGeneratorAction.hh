@@ -60,8 +60,14 @@ private:
   G4double fcos=0, fphi=0,fpx=0, fpy=0, fpz=0, fEn=0; //variables for Fermi Momentum
   G4double unpolDCS=0, polDCS=0; // unploarized and polarized differential cross section
 
-  struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
-	TLorentzVector thirdParticleVector; G4double polLong; G4double polTran; } primeEvent;
+  TLorentzVector beam, target, spectator, w, p1, p2, p3; 
+  TLorentzVector *pBeam = new TLorentzVector(), *pTarget = new TLorentzVector();
+  TLorentzVector *pSpectator = new TLorentzVector(), *pW = new TLorentzVector();
+  TLorentzVector *pP1 = new TLorentzVector(), *pP2 = new TLorentzVector();
+  TLorentzVector *pP3 = new TLorentzVector(); // the third produced particle is proton for ed->enp
+  
+  struct EventInfo { TLorentzVector *electronVector; TLorentzVector *neutronVector;
+	TLorentzVector *thirdParticleVector; G4double polLong; G4double polTran; } primeEvent;
   
 private:
   NpolPrimaryGeneratorMessenger* gunMessenger;

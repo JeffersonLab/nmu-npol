@@ -72,7 +72,7 @@ NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
   delete fParticleGun;
   delete fParticleGun2;
   delete gunMessenger;
-}
+} 
 
 // This function is called at the beginning of each event.
 void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
@@ -83,10 +83,9 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   if(genMethod == "dcs"){
 	G4double NpolAng = -NpolPolarimeter::NpolAng;
 	GenerateNeutronEvent();
-	TLorentzVector Vector = primeEvent.neutronVector;
-	G4double nMom = primeEvent.neutronVector.P();
-	G4double nTheta = primeEvent.neutronVector.Theta();
-	G4double nPhi = primeEvent.neutronVector.Phi();
+	G4double nMom = primeEvent.neutronVector->P();
+	G4double nTheta = primeEvent.neutronVector->Theta();
+	G4double nPhi = primeEvent.neutronVector->Phi();
 	G4double polX = primeEvent.polTran;
 	G4double polY = 0.;
 	G4double polZ = primeEvent.polLong;
@@ -131,26 +130,12 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   double massesENP[3]={massElectron,massNeutron, massProton}; // masses of product paritcles for ed
    
   // Commented out Lorentz Vectors not being used at the moment to suppress warnings.
-  //TLorentzVector *pBeam = NULL;
-  TLorentzVector beam;
-  //pBeam = &beam;
-  //TLorentzVector *pTarget = NULL;
-  TLorentzVector target;
-  //pTarget = &target;
-  //TLorentzVector *pSpectator = NULL;
-  TLorentzVector spectator;
-  //pSpectator = &spectator;
-  //TLorentzVector *pW = NULL;
-  TLorentzVector w;
-  //pW = &w; 
-  TLorentzVector *pP1 = NULL;
-  TLorentzVector p1;
+  pBeam = &beam;
+  pTarget = &target;
+  pSpectator = &spectator;
+  pW = &w;  
   pP1 = &p1;
-  TLorentzVector *pP2 = NULL;
-  TLorentzVector p2;
   pP2 = &p2;
-  TLorentzVector *pP3 = NULL; // the third produced particle is proton for ed->enp
-  TLorentzVector p3;
   pP3 = &p3;			
 
    ////Some preparation////
@@ -468,9 +453,12 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   }
 
   // Fill the struct with the necessary Lorentz vectors and polarization values
-  primeEvent.electronVector = *pP1;
-  primeEvent.neutronVector = *pP2;
-  primeEvent.thirdParticleVector = *pP3;
+  TLorentzVector *copyVector1 = new TLorentzVector(*pP1);
+  TLorentzVector *copyVector2 = new TLorentzVector(*pP2);
+  TLorentzVector *copyVector3 = new TLorentzVector(*pP3);
+  primeEvent.electronVector = copyVector1; //*pP1;
+  primeEvent.neutronVector = copyVector2; //*pP2;
+  primeEvent.thirdParticleVector = copyVector3; //*pP3;
   primeEvent.polLong = polLongi;
   primeEvent.polTran = polTrans;
   
