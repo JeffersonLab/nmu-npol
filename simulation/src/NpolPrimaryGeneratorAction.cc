@@ -25,9 +25,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "globals.hh"
-#include "TMath.h"
+#include "TMath.h" 
 #include "TRandom3.h"
-#include <TLorentzVector.h>
 
 #include "JGenPhaseSpace.h"
 #include "JGenFermiMomentum.h"
@@ -43,9 +42,6 @@
 #define alpha 0.0072973525664 // fine structure constant
 #define dcsConversion 2.56819e-6 // const for conversion from 1ub to 1GeV^-2
 /* ----------- constants ----------- */
-
-struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
-  TLorentzVector thirdParticleVector; G4double polLong; G4double polTran; } primeEvent;
 
 G4double NpolPrimaryGeneratorAction::NpolAng = (NpolPolarimeter::NpolAng)*180./TMath::Pi();
 
@@ -76,7 +72,7 @@ NpolPrimaryGeneratorAction::~NpolPrimaryGeneratorAction()
   delete fParticleGun;
   delete fParticleGun2;
   delete gunMessenger;
-}
+} 
 
 // This function is called at the beginning of each event.
 void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
@@ -87,10 +83,9 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   if(genMethod == "dcs"){
 	G4double NpolAng = -NpolPolarimeter::NpolAng;
 	GenerateNeutronEvent();
-	TLorentzVector Vector = primeEvent.neutronVector;
-	G4double nMom = primeEvent.neutronVector.P();
-	G4double nTheta = primeEvent.neutronVector.Theta();
-	G4double nPhi = primeEvent.neutronVector.Phi();
+	G4double nMom = primeEvent.neutronVector->P();
+	G4double nTheta = primeEvent.neutronVector->Theta();
+	G4double nPhi = primeEvent.neutronVector->Phi();
 	G4double polX = primeEvent.polTran;
 	G4double polY = 0.;
 	G4double polZ = primeEvent.polLong;
@@ -103,7 +98,7 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	G4double yPrimeDir = 1*yDir;
 	G4double zPrimeDir = -xDir*sin(NpolAng) + zDir*cos(NpolAng);
 	G4ThreeVector momPrime;
-	momPrime.setX(xPrimeDir);momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
+	momPrime.setX(xPrimeDir); momPrime.setY(yPrimeDir); momPrime.setZ(zPrimeDir);
 	
 	fParticleGun->SetParticleMomentum(nMom);
 	fParticleGun->SetParticleMomentumDirection(momPrime);
@@ -131,35 +126,16 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 
   //// Variables defination ////
   int event = 0; //Serial number of events
-  double x=0, y=0, z=0; // vertex
-  double fcos=0, fphi=0,fpx=0, fpy=0, fpz=0, fEn=0; //variables for Fermi Momentum
   double masses[2]={massElectron,massNeutron}; // masses of product paritcles for en
   double massesENP[3]={massElectron,massNeutron, massProton}; // masses of product paritcles for ed
-  double q2=0, energySElectron=0, thetaSElectron=0, pRNeutron=0, thetaRNeutron=0, tau=0, epsilon=0;
-  double unpolDCS=0, polDCS=0; // unploarized and polarized differential cross section
-  double polTrans=0, polLongi=0, phaseShift=0; // transverse and longitudinal components and phase-shift of recoiled neutron polarization
-  int helicity=1; // helicity
-
-  TLorentzVector *pBeam = NULL;
-  TLorentzVector beam;
+   
+  // Commented out Lorentz Vectors not being used at the moment to suppress warnings.
   pBeam = &beam;
-  TLorentzVector *pTarget = NULL;
-  TLorentzVector target;
   pTarget = &target;
-  TLorentzVector *pSpectator = NULL;
-  TLorentzVector spectator;
   pSpectator = &spectator;
-  TLorentzVector *pW = NULL;
-  TLorentzVector w;
-  pW = &w;
-  TLorentzVector *pP1 = NULL;
-  TLorentzVector p1;
+  pW = &w;  
   pP1 = &p1;
-  TLorentzVector *pP2 = NULL;
-  TLorentzVector p2;
   pP2 = &p2;
-  TLorentzVector *pP3 = NULL; // the third produced particle is proton for ed->enp
-  TLorentzVector p3;
   pP3 = &p3;			
 
    ////Some preparation////
@@ -231,7 +207,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		  }
 		}
 		
-		if(filter=="polarized"){
+		if(filter=="polarized"){ 
 		  ran3 = maxDCS*randomNum.Rndm(); 
 		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
@@ -254,7 +230,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 1 */
 
   /* channel 2 */
-  if(channel == 2){
+  else if(channel == 2){
 	do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -339,7 +315,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 2 */
   
   /* channel 3 */
-  if(channel == 3){
+  else if(channel == 3){
     do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -433,7 +409,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 3 */
   
  /* channel 4 */
-  if(channel == 4){
+  else if(channel == 4){
     do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -472,25 +448,34 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
     } while(!(evtFlag)); 
   }
   /* End channel 4 */
+  else {
+	// do nothing
+  }
 
-  primeEvent.electronVector = *pP1;
-  primeEvent.neutronVector = *pP2;
-  primeEvent.thirdParticleVector = *pP3;
+  // Fill the struct with the necessary Lorentz vectors and polarization values
+  TLorentzVector *copyVector1 = new TLorentzVector(*pP1);
+  TLorentzVector *copyVector2 = new TLorentzVector(*pP2);
+  TLorentzVector *copyVector3 = new TLorentzVector(*pP3);
+  primeEvent.electronVector = copyVector1; 
+  primeEvent.neutronVector = copyVector2; 
+  primeEvent.thirdParticleVector = copyVector3; 
   primeEvent.polLong = polLongi;
-  primeEvent.polTran = polTrans;
+  primeEvent.polTran = polTrans; 
   
   return;
 }
 
 
-double NpolPrimaryGeneratorAction::genCalc(double q2){
-  double tau=q2/4/massNeutron/massNeutron;
+G4double NpolPrimaryGeneratorAction::genCalc(G4double val){
+  q2=val;
+  tau=q2/4/massNeutron/massNeutron;
   double gD=pow(1+q2/0.71,-2);
   gen=-0.886*(-1.913)*tau*gD/(1+3.29*tau);
   return gen;
 }
 
-double NpolPrimaryGeneratorAction::gmnCalc(double q2){
+G4double NpolPrimaryGeneratorAction::gmnCalc(G4double val){
+  q2=val;
   double b[5]={3.26,-0.272, 0.0123, -2.52, 2.55};
   gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
   return gmn;

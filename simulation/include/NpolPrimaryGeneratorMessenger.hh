@@ -16,9 +16,10 @@ class G4UIcmdWithAString;
 class G4UIcmdWithABool;
 class G4UIcmdWithADouble;
 class G4UIcmdWithAnInteger;
+
 class NpolPrimaryGeneratorMessenger: public G4UImessenger {
 public:
-  NpolPrimaryGeneratorMessenger(NpolPrimaryGeneratorAction* );
+  NpolPrimaryGeneratorMessenger(NpolPrimaryGeneratorAction* gun);
   virtual ~NpolPrimaryGeneratorMessenger();
 
   void SetNewValue(G4UIcommand*, G4String);
