@@ -32,8 +32,8 @@ public:
   
   virtual void GeneratePrimaries(G4Event*);
   void GenerateNeutronEvent();
-  double genCalc(double q2);
-  double gmnCalc(double q2);
+  double genCalc(G4double q2);
+  double gmnCalc(G4double q2);
   
   void SetFilterValue(G4String val);
   void SetGenMethodValue(G4String val);
@@ -53,8 +53,16 @@ private:
   G4double maxDCS, beamEnergy, polBeam, openAngle, helicityRatio;
   G4double gen, gmn;
   G4String filter, genMethod;
-  G4int channel;
+  G4int channel, helicity=1; // helicity
+  G4double q2=0, energySElectron=0, thetaSElectron=0, pRNeutron=0;
+  G4double x=0, y=0, z=0; // vertex
+  G4double thetaRNeutron=0, tau=0, epsilon=0,polTrans=0, polLongi=0, phaseShift=0;
+  G4double fcos=0, fphi=0,fpx=0, fpy=0, fpz=0, fEn=0; //variables for Fermi Momentum
+  G4double unpolDCS=0, polDCS=0; // unploarized and polarized differential cross section
 
+  struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
+	TLorentzVector thirdParticleVector; G4double polLong; G4double polTran; } primeEvent;
+  
 private:
   NpolPrimaryGeneratorMessenger* gunMessenger;
   G4ParticleGun* fParticleGun;

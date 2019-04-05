@@ -21,10 +21,10 @@
 #include <fstream>
 #include <iostream>
 #include <signal.h>
-
+ 
 using namespace std;
 using std::cout;
-using std::endl;
+using std::endl; 
 
 const Int_t kMAXP = 4;
 
@@ -48,21 +48,21 @@ Double_t JGenPhaseSpace::wtRnd (Double_t rnd) {
   double E1    = fTeCmTm * rnd + fMass[0] + fMass[1] ;
   double E2    = fTeCmTm * rnd + fMass[0] + fMass[1] + fMass[2];
   if (fNt==2) {
-     double p1    = pdk(E1, fMass[0], fMass[1]);
-     return fWtMax*p1;
-           }
+	double p1    = pdk(E1, fMass[0], fMass[1]);
+	return fWtMax*p1;
+  }
   else if (fNt==3) {
-     double p1    = pdk(E1, fMass[0], fMass[1]);
-     double p2    = pdk(fTeCm, E1, fMass[2]);
-     return fWtMax*p1*p2;
-           }     
+	double p1    = pdk(E1, fMass[0], fMass[1]);
+	double p2    = pdk(fTeCm, E1, fMass[2]);
+	return fWtMax*p1*p2;
+  }     
   else if (fNt==4) {
-     double p1    = pdk(E1, fMass[0], fMass[1]);
-     double p2    = pdk(fTeCm-fMass[3], E1, fMass[2]);
-     double p3    = pdk(fTeCm, E2, fMass[3]);
-     return fWtMax*p1*p2*p3;
-           }
-	  
+	double p1    = pdk(E1, fMass[0], fMass[1]);
+	double p2    = pdk(fTeCm-fMass[3], E1, fMass[2]);
+	double p3    = pdk(fTeCm, E2, fMass[3]);
+	return fWtMax*p1*p2*p3;
+  }
+  return 0;
 }
 
 //_____________________________________________________________________________________

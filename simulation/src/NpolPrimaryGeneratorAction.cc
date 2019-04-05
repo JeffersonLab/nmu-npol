@@ -27,7 +27,6 @@
 #include "globals.hh"
 #include "TMath.h"
 #include "TRandom3.h"
-#include <TLorentzVector.h>
 
 #include "JGenPhaseSpace.h"
 #include "JGenFermiMomentum.h"
@@ -43,9 +42,6 @@
 #define alpha 0.0072973525664 // fine structure constant
 #define dcsConversion 2.56819e-6 // const for conversion from 1ub to 1GeV^-2
 /* ----------- constants ----------- */
-
-struct EventInfo { TLorentzVector electronVector; TLorentzVector neutronVector;
-  TLorentzVector thirdParticleVector; G4double polLong; G4double polTran; } primeEvent;
 
 G4double NpolPrimaryGeneratorAction::NpolAng = (NpolPolarimeter::NpolAng)*180./TMath::Pi();
 
@@ -131,27 +127,22 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 
   //// Variables defination ////
   int event = 0; //Serial number of events
-  double x=0, y=0, z=0; // vertex
-  double fcos=0, fphi=0,fpx=0, fpy=0, fpz=0, fEn=0; //variables for Fermi Momentum
   double masses[2]={massElectron,massNeutron}; // masses of product paritcles for en
   double massesENP[3]={massElectron,massNeutron, massProton}; // masses of product paritcles for ed
-  double q2=0, energySElectron=0, thetaSElectron=0, pRNeutron=0, thetaRNeutron=0, tau=0, epsilon=0;
-  double unpolDCS=0, polDCS=0; // unploarized and polarized differential cross section
-  double polTrans=0, polLongi=0, phaseShift=0; // transverse and longitudinal components and phase-shift of recoiled neutron polarization
-  int helicity=1; // helicity
-
-  TLorentzVector *pBeam = NULL;
+   
+  // Commented out Lorentz Vectors not being used at the moment to suppress warnings.
+  //TLorentzVector *pBeam = NULL;
   TLorentzVector beam;
-  pBeam = &beam;
-  TLorentzVector *pTarget = NULL;
+  //pBeam = &beam;
+  //TLorentzVector *pTarget = NULL;
   TLorentzVector target;
-  pTarget = &target;
-  TLorentzVector *pSpectator = NULL;
+  //pTarget = &target;
+  //TLorentzVector *pSpectator = NULL;
   TLorentzVector spectator;
-  pSpectator = &spectator;
-  TLorentzVector *pW = NULL;
+  //pSpectator = &spectator;
+  //TLorentzVector *pW = NULL;
   TLorentzVector w;
-  pW = &w;
+  //pW = &w; 
   TLorentzVector *pP1 = NULL;
   TLorentzVector p1;
   pP1 = &p1;
@@ -231,7 +222,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 		  }
 		}
 		
-		if(filter=="polarized"){
+		if(filter=="polarized"){ 
 		  ran3 = maxDCS*randomNum.Rndm(); 
 		  if(thetaSElectron>thetaSElectronFree-openAngle/deg/2 && thetaSElectron <thetaSElectronFree+openAngle/deg/2){
 			mottDCS=pow(alpha,2)/(4*pow(beamEnergy,2)*pow(sin(thetaSElectronRad/2),4))*pow(cos(thetaSElectronRad/2),2);
@@ -254,7 +245,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 1 */
 
   /* channel 2 */
-  if(channel == 2){
+  else if(channel == 2){
 	do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -339,7 +330,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 2 */
   
   /* channel 3 */
-  if(channel == 3){
+  else if(channel == 3){
     do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -433,7 +424,7 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
   /* End channel 3 */
   
  /* channel 4 */
-  if(channel == 4){
+  else if(channel == 4){
     do {
       // Print out a message every 100 events 
       if (event % 100 == 0){
@@ -472,7 +463,11 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
     } while(!(evtFlag)); 
   }
   /* End channel 4 */
+  else {
+	// do nothing
+  }
 
+  // Fill the struct with the necessary Lorentz vectors and polarization values
   primeEvent.electronVector = *pP1;
   primeEvent.neutronVector = *pP2;
   primeEvent.thirdParticleVector = *pP3;
@@ -483,14 +478,16 @@ void NpolPrimaryGeneratorAction::GenerateNeutronEvent(){
 }
 
 
-double NpolPrimaryGeneratorAction::genCalc(double q2){
-  double tau=q2/4/massNeutron/massNeutron;
+G4double NpolPrimaryGeneratorAction::genCalc(G4double val){
+  q2=val;
+  tau=q2/4/massNeutron/massNeutron;
   double gD=pow(1+q2/0.71,-2);
   gen=-0.886*(-1.913)*tau*gD/(1+3.29*tau);
   return gen;
 }
 
-double NpolPrimaryGeneratorAction::gmnCalc(double q2){
+G4double NpolPrimaryGeneratorAction::gmnCalc(G4double val){
+  q2=val;
   double b[5]={3.26,-0.272, 0.0123, -2.52, 2.55};
   gmn=-1.913/(1+b[0]*q2/(1+b[1]*q2/(1+b[2]*q2/(1+b[3]*q2/(1+b[4]*q2)))));
   return gmn;

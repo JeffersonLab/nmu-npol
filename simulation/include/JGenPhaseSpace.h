@@ -14,7 +14,11 @@
 #define JLAB_JGenPhaseSpace
 
 #include "TLorentzVector.h"
+#include "TString.h"
+#include "TObject.h"
 #define NFWSUM 1001
+
+
 
 class JGenPhaseSpace : public TObject {
  private:  
