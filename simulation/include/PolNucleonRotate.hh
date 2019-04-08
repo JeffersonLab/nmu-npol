@@ -10,6 +10,10 @@
 //  4/02/12 JRMA Extend range of models and different p and 12C models
 // 29/01/16 JRMA Fix bug polar scattering angle
 // 03/02/16 JRMA Extend checks of type of scattering
+// Fall/Spring 2018-19 by Josh McMullen
+// 8-April-2019: W.Tireman added the ability to select polarization
+//    mod. code on/off from messenger class (Macro script) and added
+//    a messenger class to allow for Macros to send commands, settings
  
 #ifndef PolNucleonRotate_h
 #define PolNucleonRotate_h 1
