@@ -46,6 +46,9 @@
 //		configure base-class
 // 28-Sep-2012 Restore inheritance from G4VDiscreteProcess, remove enable-flag
 //		changing, remove warning message from original ctor.
+// Fall/Spring 2018-19 by Josh McMullen
+// 8-April-2019: W.Tireman added the ability to select polarization
+//    mod. code on/off from messenger class (Macro script)
 
 #include "G4HadronicProcess.hh"
 
@@ -78,8 +81,6 @@
 
 #include "PolNucleonRotate.hh"
 
-//PolNucleonRotate *gPolRot; 
-//extern PolNucleonRotate* gPolRot; //Kept "extern" here - 10/19/2018
 // File-scope variable to capture environment variable at startup
 
 static const char* G4Hadronic_Random_File = getenv("G4HADRONIC_RANDOM_FILE");
@@ -502,8 +503,7 @@ G4HadronicProcess::FillResult(G4HadFinalState * aR, const G4Track & aT)
 		// Recalculate phi angle, and return the rotation needed to get it there
 		if( sec1DP ){
 		  G4double phiP = gPolRot->GetPolarisedRotation(primDP, sec1DP, sec2DP, false);
-		  if( phiP )
-			rotation = phiP;
+		  if( phiP ) rotation = phiP;
 		}
       }
     }

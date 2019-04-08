@@ -31,6 +31,9 @@
 //  
 // Modified:
 // 14-Sep-12 M.Kelsey -- Pass subType code to base ctor
+// Fall/Spring 2018-19 by Josh McMullen
+// 8-April-2019: W.Tireman added the ability to select polarization
+//    mod. code on/off from messenger class (Macro script)
 
 #include <iostream>
 #include <typeinfo>
@@ -47,9 +50,6 @@
 #include "G4HadronicInteraction.hh"
 #include "G4VCrossSectionRatio.hh"
 #include "PolNucleonRotate.hh"
-
-//extern PolNucleonRotate* gPolRot; //Kept "extern" here - 10/19/2018
-//PolNucleonRotate *gPolRot; 
 
 G4HadronElasticProcess::G4HadronElasticProcess(const G4String& pName)
   : G4HadronicProcess(pName, fHadronElastic), isInitialised(false),
@@ -230,7 +230,7 @@ G4HadronElasticProcess::PostStepDoIt(const G4Track& track,
   // G4double phiPol = 0.0;
   PolNucleonRotate *gPolRot = PolNucleonRotate::GetInstance();
   if( (gPolRot) && (iz==1) && (gPolRot->polFlag)){
-    G4int nsec = result->GetNumberOfSecondaries();//Did not alter this section - 10/19/2018
+    G4int nsec = result->GetNumberOfSecondaries();
     G4DynamicParticle secpart;
     G4DynamicParticle* primpart;
     G4DynamicParticle* terpart = NULL;
@@ -248,9 +248,8 @@ G4HadronElasticProcess::PostStepDoIt(const G4Track& track,
     // polarisation needs to be defined in the proton frame
     // i.e if we have it in the lab must do Pol.rotateUz(-indir)
     //if( iz == 1 ){
-    G4double phiP = gPolRot->GetPolarisedRotation(primpart,&secpart,terpart,true); //Kept this uncommented 10/19
-    if( phiP)
-      phi = phiP;
+    G4double phiP = gPolRot->GetPolarisedRotation(primpart,&secpart,terpart,true); 
+    if( phiP) phi = phiP;
 	// }
   }
   // end of polarised scattering extra
