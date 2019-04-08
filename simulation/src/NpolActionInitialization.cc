@@ -20,6 +20,8 @@
 
 #include "G4RunManager.hh"
 
+#include "PolNucleonRotate.hh"
+
 NpolActionInitialization::NpolActionInitialization()
 {}
 
@@ -44,5 +46,8 @@ void NpolActionInitialization::Build() const {
 
   NpolSteppingAction* step_action = new NpolSteppingAction(event_action, run_action);
   SetUserAction(step_action);
+
+  PolNucleonRotate *gPolRot = PolNucleonRotate::GetInstance();
+  
 }
 
