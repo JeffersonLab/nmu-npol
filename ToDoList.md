@@ -4,6 +4,8 @@
 
 2. The new (e,e'n) generator code from Tongtong (Hampton U.) throws a lot of warnings.  Mostly for "unused variables".  The code was pulled from a stand alone program so it is mostly due to the copy/paste being complete and now concise.  Someone should take the time at some point to clean this up.
 
+3. Need to look at how the polarization is set in the PrimaryEventGenerator.  This is necessary when performing polarized scattering.  Right now the polarization from the (e,e'n) polarized filter DCS is just swapped (transverse <--> longitudinal) to simulation a rotation in the magnets.
+
 # Minor Issues and/or needs
 
 1. Multithreading option was partially coded in and tested in 2015/16 however a race condition was found to cause the start up to crash periodically. There was also an issue with the shutting down portion of the code which appeared to occur after the end of all worker threads.  Since each worker thread used its own output file and the master thread did not try to combine them together at the end, it did not effect the output files.  It would generate huge error output. Running locally can be dealt with using scripts to launch and monitor several instances of the simulation under similar (different run numbers) conditions or different conditions such as particle type.  If multithreading was made to work, we could see improvements on the JLAB batch farm both in memory usage and resources allocation.  Memory usage is lowered in multithreading applications and given the puny amounts of RAM per thread on the batch farm it would give some advantage and efficency.  
