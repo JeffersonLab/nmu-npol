@@ -86,9 +86,12 @@ void NpolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	G4double nMom = primeEvent.neutronVector->P();
 	G4double nTheta = primeEvent.neutronVector->Theta();
 	G4double nPhi = primeEvent.neutronVector->Phi();
-	G4double polX = primeEvent.polTran;
+
+	// Need to optimize the Polarization setting to make sense in real experiement setting.
+	// For now, we just rotate the Transverse and longitudinal components by 90 degrees.
+	G4double polX = primeEvent.polLong;//primeEvent.polTran; // normally this
 	G4double polY = 0.;
-	G4double polZ = primeEvent.polLong;
+	G4double polZ = -primeEvent.polTran;//primeEvent.polLong; // normally this
 
 	G4double xDir = sin(nTheta)*cos(nPhi);
 	G4double yDir = sin(nTheta)*sin(nPhi);
