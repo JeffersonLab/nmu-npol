@@ -1,3 +1,8 @@
+// W. Tireman 8-April-2019
+// Created this messenger class to send commands from G4 Macro
+// to the polarizaton scattering code in PolNucleonRotate and
+// hence the G4HadronElasticProcess and G4HadronicProcess classes.
+
 #include "NpolPolRotateMessenger.hh"
 #include "PolNucleonRotate.hh"
 
@@ -46,7 +51,6 @@ void NpolPolRotateMessenger::SetNewValue(G4UIcommand* command, G4String newVal){
   
   //G4cout << " \n  Is this GENERATOR being called at all??????????? \n \n";
   if(command == hlp){
-    //florAction->SetUseHelp(newVal);
     G4cout << "\nUsage: NpolGenerator [options] inputFile\n\n";
     G4cout << "\toptions:\n";
     G4cout << "\t/npol/help\t\tThis information\n";
