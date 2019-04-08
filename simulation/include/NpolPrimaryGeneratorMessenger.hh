@@ -21,7 +21,7 @@ class NpolPrimaryGeneratorMessenger: public G4UImessenger {
 public:
   NpolPrimaryGeneratorMessenger(NpolPrimaryGeneratorAction* gun);
   virtual ~NpolPrimaryGeneratorMessenger();
-
+  
   void SetNewValue(G4UIcommand*, G4String);
   
 private:

@@ -20,6 +20,8 @@
 
 #include "G4RunManager.hh"
 
+#include "PolNucleonRotate.hh"
+
 NpolActionInitialization::NpolActionInitialization()
 {}
 
@@ -44,5 +46,11 @@ void NpolActionInitialization::Build() const {
 
   NpolSteppingAction* step_action = new NpolSteppingAction(event_action, run_action);
   SetUserAction(step_action);
+
+  // Super silly to add this but needed to generate the PolNucleonRotate class (and its
+  // messenger class) before any events are generated.  The messenger class is needed for
+  // the reading of the G4 macro script.
+  PolNucleonRotate *gPolRot = PolNucleonRotate::GetInstance();
+  
 }
 

@@ -10,10 +10,15 @@
 //  4/02/12 JRMA Extend range of models and different p and 12C models
 // 29/01/16 JRMA Fix bug polar scattering angle
 // 03/02/16 JRMA Extend checks of type of scattering
+// Fall/Spring 2018-19 by Josh McMullen
+// 8-April-2019: W.Tireman added the ability to select polarization
+//    mod. code on/off from messenger class (Macro script) and added
+//    a messenger class to allow for Macros to send commands, settings
  
 #ifndef PolNucleonRotate_h
 #define PolNucleonRotate_h 1
 
+#include "NpolPolRotateMessenger.hh"
 #include "G4HadronicProcess.hh"
 #include "G4SystemOfUnits.hh"
 enum { EppEl, EnpEl, EnpCEEl, EppInel, EnpInel, EnpCEInel, EnnInel };
@@ -26,10 +31,14 @@ static const G4double mn = 0.939565;  // neutron mass
 class PolNucleonRotate
 {
 public:
-    
+  static PolNucleonRotate *GetInstance();
   PolNucleonRotate( G4int = 0 ); 
-  //  virtual ~PolNucleonRotate();
-private:
+  ~PolNucleonRotate();
+  
+public:  // variables
+  static G4bool polFlag;
+  
+private: // variables
   G4double fppElpm;
   G4double fnpElpm;
   G4double fnpCEElpm;
@@ -51,8 +60,11 @@ private:
   G4int fPDG2;              // ID of secondary particle
   G4int fChannel;
   G4bool fIsEl;             // elastic?
-public:
-  G4double  GetPolarisedRotation(const G4DynamicParticle*,
+  NpolPolRotateMessenger *polMessenger;
+  static PolNucleonRotate *polInstance;
+  
+public: // methods
+  G4double GetPolarisedRotation(const G4DynamicParticle*,
   				 const G4DynamicParticle*,
   				 const G4DynamicParticle* = NULL,
   				 G4bool = false );
@@ -67,8 +79,13 @@ public:
   void SetAyModel(G4int, G4int, G4double);              // set Ay models
   G4double Get_t( G4double, G4double, G4double, G4double);
   G4int fVerbose;
+
+  void SetPolarScatteringValue(G4bool val);
+
+  
 };
 
+// Inherited this but it really needs to be in the *.cc file and not here as an inline.
 inline G4double PolNucleonRotate::Ay()
 {
   G4int model = fAyModel[fChannel];

@@ -1,3 +1,7 @@
+#Update: 8-April-2019
+
+Added messenger class to PolNucleonRotate so the polarized (n,p) and (n,C) scattering can be turned on and off from a G4 macro.  Cleaned up the modified G4HadronElasticProcess and G4HadronicProcess class changes provided by Glasgow U.  (John Annad).  This allows for us to run simulation to look for scattering asymmetry based on neutron polarizaton.
+
 #Update: 3-April-2019
 
 Added in Tongtong's (Hampton U.) differental cross section (DCS) generator for (e,e'n) scatteering to the primary event generator.  Also added a PrimaryEventMessenger class so commands can be passed from the G4 macro file to the PrimaryEvent generator.  See NpolPrimaryEventGeneratorMessenger.cc/hh for more details.
