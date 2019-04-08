@@ -29,6 +29,8 @@
 #
 # Commands below are for the NPOL messenger
 #
+/npol/polarScattering true  # turn off(false) or on(true) Glasgow polarized scattering
+
 /npol/gun/maxDCS 0.045
 /npol/gun/filter polarized
 /npol/gun/generator dcs
@@ -45,4 +47,4 @@
 #
 /vis/scene/endOfEventAction accumulate 2000
 /run/printProgress 100
-/run/beamOn 2000
+/run/beamOn 5000
