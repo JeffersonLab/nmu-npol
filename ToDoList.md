@@ -1,10 +1,8 @@
 # Major Issues and/or needs
 
-1. Implementation of the U. of Glasgow proton-recoil polarization code is inprogress and should be included into the main code soon.
+1. Down strem beamline crashes during simulation startup (but code compiles). There must be an overlap in the volumes.  The Code needs reworked and possible a different model used in the future.  It is currently commented out of the DetectorConstruction class and isn't necessary when performing simulations only on the polarimeter.
 
-2. Down strem beamline crashes during simulation startup (but code compiles). There must be an overlap in the volumes.  The Code needs reworked and possible a different model used in the future.  It is currently commented out of the DetectorConstruction class and isn't necessary when performing simulations only on the polarimeter.
-
-3. The new (e,e'n) generator code from Tongtong (Hampton U.) throws a lot of warnings.  Mostly for "unused variables".  The code was pulled from a stand alone program so it is mostly due to the copy/paste being complete and now concise.  Someone should take the time at some point to clean this up.
+2. The new (e,e'n) generator code from Tongtong (Hampton U.) throws a lot of warnings.  Mostly for "unused variables".  The code was pulled from a stand alone program so it is mostly due to the copy/paste being complete and now concise.  Someone should take the time at some point to clean this up.
 
 # Minor Issues and/or needs
 
