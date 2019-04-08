@@ -14,6 +14,7 @@
 #ifndef PolNucleonRotate_h
 #define PolNucleonRotate_h 1
 
+#include "NpolPolRotateMessenger.hh"
 #include "G4HadronicProcess.hh"
 #include "G4SystemOfUnits.hh"
 enum { EppEl, EnpEl, EnpCEEl, EppInel, EnpInel, EnpCEInel, EnnInel };
@@ -26,10 +27,14 @@ static const G4double mn = 0.939565;  // neutron mass
 class PolNucleonRotate
 {
 public:
-    
+  static PolNucleonRotate *GetInstance();
   PolNucleonRotate( G4int = 0 ); 
-  //  virtual ~PolNucleonRotate();
-private:
+  ~PolNucleonRotate();
+  
+public:  // variables
+  static G4bool polFlag;
+  
+private: // variables
   G4double fppElpm;
   G4double fnpElpm;
   G4double fnpCEElpm;
@@ -51,8 +56,11 @@ private:
   G4int fPDG2;              // ID of secondary particle
   G4int fChannel;
   G4bool fIsEl;             // elastic?
-public:
-  G4double  GetPolarisedRotation(const G4DynamicParticle*,
+  NpolPolRotateMessenger *polMessenger;
+  static PolNucleonRotate *polInstance;
+  
+public: // methods
+  G4double GetPolarisedRotation(const G4DynamicParticle*,
   				 const G4DynamicParticle*,
   				 const G4DynamicParticle* = NULL,
   				 G4bool = false );
@@ -67,8 +75,13 @@ public:
   void SetAyModel(G4int, G4int, G4double);              // set Ay models
   G4double Get_t( G4double, G4double, G4double, G4double);
   G4int fVerbose;
+
+  void SetPolarScatteringValue(G4bool val);
+
+  
 };
 
+// Inherited this but it really needs to be in the *.cc file and not here as an inline.
 inline G4double PolNucleonRotate::Ay()
 {
   G4int model = fAyModel[fChannel];

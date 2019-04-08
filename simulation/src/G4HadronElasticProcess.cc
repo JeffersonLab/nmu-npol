@@ -46,8 +46,10 @@
 #include "G4HadronicDeprecate.hh"
 #include "G4HadronicInteraction.hh"
 #include "G4VCrossSectionRatio.hh"
+#include "PolNucleonRotate.hh"
 
-PolNucleonRotate* gPolRot; //deleted "extern" before PolNucleonRotate* - 10/19/18
+//extern PolNucleonRotate* gPolRot; //Kept "extern" here - 10/19/2018
+//PolNucleonRotate *gPolRot; 
 
 G4HadronElasticProcess::G4HadronElasticProcess(const G4String& pName)
   : G4HadronicProcess(pName, fHadronElastic), isInitialised(false),
@@ -222,10 +224,12 @@ G4HadronElasticProcess::PostStepDoIt(const G4Track& track,
   G4ThreeVector outdir = result->GetMomentumChange();
   G4double ekin = result->GetEnergyChange();
   G4double outPhi = outdir.phi();
-  //
+
+  //*******************************************************************//
   // extra for polarised scattering
   // G4double phiPol = 0.0;
-  if( gPolRot && (iz==1) ){
+  PolNucleonRotate *gPolRot = PolNucleonRotate::GetInstance();
+  if( (gPolRot) && (iz==1) && (gPolRot->polFlag)){
     G4int nsec = result->GetNumberOfSecondaries();//Did not alter this section - 10/19/2018
     G4DynamicParticle secpart;
     G4DynamicParticle* primpart;
@@ -247,10 +251,11 @@ G4HadronElasticProcess::PostStepDoIt(const G4Track& track,
     G4double phiP = gPolRot->GetPolarisedRotation(primpart,&secpart,terpart,true); //Kept this uncommented 10/19
     if( phiP)
       phi = phiP;
-      // }
+	// }
   }
   // end of polarised scattering extra
-  //
+  //*******************************************************************//
+
   if(verboseLevel>1) {
     G4cout << "Efin= " << result->GetEnergyChange()
 	   << " de= " << result->GetLocalEnergyDeposit()

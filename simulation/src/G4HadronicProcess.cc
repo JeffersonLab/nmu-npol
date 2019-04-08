@@ -74,11 +74,12 @@
 #include <typeinfo>
 #include <sstream>
 #include <iostream>
-
 #include <stdlib.h>
 
-extern PolNucleonRotate* gPolRot; //Kept "extern" here - 10/19/2018
+#include "PolNucleonRotate.hh"
 
+//PolNucleonRotate *gPolRot; 
+//extern PolNucleonRotate* gPolRot; //Kept "extern" here - 10/19/2018
 // File-scope variable to capture environment variable at startup
 
 static const char* G4Hadronic_Random_File = getenv("G4HADRONIC_RANDOM_FILE");
@@ -461,6 +462,8 @@ G4HadronicProcess::FillResult(G4HadFinalState * aR, const G4Track & aT)
 
   // check secondaries: apply rotation and Lorentz transformation
   G4int nSec = aR->GetNumberOfSecondaries();
+
+  //*******************************************************************//
   // Polarised nucleon scattering in hydro-carbon material
   // Derek G's comment
   // Loop through all produced particles and find the one with
@@ -469,42 +472,44 @@ G4HadronicProcess::FillResult(G4HadFinalState * aR, const G4Track & aT)
   // the initial particle is killed unless 
   // "Keep initial projectile" is displayed
   //G4double phiPol = 0.0;    // phi modification angle
-  if( gPolRot ){
+  PolNucleonRotate *gPolRot = PolNucleonRotate::GetInstance();
+  if( (gPolRot) && (gPolRot->polFlag) ){
     if( IsOrganic(aT) ){     // does tracking material contain H,C?
       G4DynamicParticle* primDP = (G4DynamicParticle*)aT.GetDynamicParticle();
       G4DynamicParticle* sec1DP = NULL;
       G4DynamicParticle* sec2DP = NULL;
       if( IsNucleon( primDP ) ){
-	G4double highKE1 = 0.0;
-	G4double highKE2 = 0.0;
-	G4LorentzVector p4sec(0,0,0,0);
-	G4int nN = 0;
-	for(G4int i=0; i<nSec; i++){
-	  G4DynamicParticle* secDP = aR->GetSecondary(i)->GetParticle();
-	  p4sec += secDP->Get4Momentum();
-	  if( IsNucleon(secDP) ){
-	    G4double ke = secDP->GetKineticEnergy();
-	    if(ke > highKE1){
-	      highKE1 = ke;
-	      sec1DP = secDP;
-	    }
-	    else if(ke > highKE2){
-	      highKE2 = ke;
-	      sec2DP = secDP;
-	    }
-	    nN++;
-	  }
-	}
-	// Recalculate phi angle, and return the rotation needed to get it there
-	if( sec1DP ){
-	  G4double phiP = gPolRot->GetPolarisedRotation(primDP, sec1DP, sec2DP, false);
-	  if( phiP )
-	    rotation = phiP;
-	}
+		G4double highKE1 = 0.0;
+		G4double highKE2 = 0.0;
+		G4LorentzVector p4sec(0,0,0,0);
+		G4int nN = 0;
+		for(G4int i=0; i<nSec; i++){
+		  G4DynamicParticle* secDP = aR->GetSecondary(i)->GetParticle();
+		  p4sec += secDP->Get4Momentum();
+		  if( IsNucleon(secDP) ){
+			G4double ke = secDP->GetKineticEnergy();
+			if(ke > highKE1){
+			  highKE1 = ke;
+			  sec1DP = secDP;
+			}
+			else if(ke > highKE2){
+			  highKE2 = ke;
+			  sec2DP = secDP;
+			}
+			nN++;
+		  }
+		}
+		// Recalculate phi angle, and return the rotation needed to get it there
+		if( sec1DP ){
+		  G4double phiP = gPolRot->GetPolarisedRotation(primDP, sec1DP, sec2DP, false);
+		  if( phiP )
+			rotation = phiP;
+		}
       }
     }
   }
   // end polarised scattering addition
+  //**************************************************************//
   theTotalResult->SetNumberOfSecondaries(nSec);
   G4double weight = aT.GetWeight();
 

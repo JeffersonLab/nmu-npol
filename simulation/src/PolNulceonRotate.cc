@@ -12,6 +12,7 @@
 // 03/02/16 JRMA Extend checks of type of scattering
  
 #include "PolNucleonRotate.hh"
+#include "NpolPolRotateMessenger.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
@@ -19,11 +20,21 @@
 G4ThreeVector* PolNN;
 G4double gAy; //Deleted "extern" before G4Double - 10/19/2018
 G4int gChannel; //Deleted "extern" before G4int - 10/19/2018
+G4bool PolNucleonRotate::polFlag = true;
 
 //----------------------------------------------------------------------------
+PolNucleonRotate *PolNucleonRotate::polInstance = NULL;
+
+PolNucleonRotate *PolNucleonRotate::GetInstance() {
+	if(polInstance == NULL)
+		polInstance = new PolNucleonRotate(0);
+
+	return polInstance;
+}
 //----------------------------------------------------------------------------
 PolNucleonRotate::PolNucleonRotate( G4int verbose )
 {
+  
   // verbose is by default 0 (ie not verbose)
   for(G4int i=EppEl; i<=EnnInel; i++){
     fAyModel[i] = EAyConst;
@@ -31,8 +42,16 @@ PolNucleonRotate::PolNucleonRotate( G4int verbose )
   }
   fVerbose = verbose;
   ftmin = 0.0;
+
+  polMessenger = new NpolPolRotateMessenger(this);
 }
- 
+
+//-----------------------------------------------------------------------------
+PolNucleonRotate::~PolNucleonRotate(){
+
+  delete polMessenger;
+}
+
 //-----------------------------------------------------------------------------
 G4double PolNucleonRotate::
 GetPolarisedRotation(const G4DynamicParticle *primPart,
@@ -43,6 +62,7 @@ GetPolarisedRotation(const G4DynamicParticle *primPart,
   // of the N + CH analysing power.
   // Already in frame defined by incident particle until GetTrafoToLab later
   //
+
   if( (!secPart) )
     return 0.0;
   G4ThreeVector Pol(primPart->GetPolarization());
@@ -353,3 +373,5 @@ G4double PolNucleonRotate::AyCE(G4double t)
   else if( t < -2.0 ) return 0.0;
   else return -0.52;
 }
+
+void PolNucleonRotate::SetPolarScatteringValue(G4bool val) { PolNucleonRotate::polFlag = val;}
