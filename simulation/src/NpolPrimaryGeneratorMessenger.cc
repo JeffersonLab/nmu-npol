@@ -4,8 +4,8 @@
 #include "G4UIcommand.hh"
 #include "G4SystemOfUnits.hh"
 
-NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(
-                                  NpolPrimaryGeneratorAction* gun)
+
+NpolPrimaryGeneratorMessenger::NpolPrimaryGeneratorMessenger(NpolPrimaryGeneratorAction* gun)
 :fnpolAction(gun){
   fgunDir = new G4UIdirectory("/npol/gun/");
   fgunDir->SetGuidance("Particle Gun control commands.");
